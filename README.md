@@ -8,7 +8,7 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
 
-## Project Link :-https://signbridge-ai-final.vercel.app/
+## Project Link :-https://signbridge-ai-final.vercel.app
 
 ## React Compiler
 
