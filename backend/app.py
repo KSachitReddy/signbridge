@@ -6,6 +6,7 @@ import numpy as np
 import base64
 from face_recognition import recognize_face
 from gesture_recognition import process_gestures
+from gesture_classifier import classify_gesture
 from emotion_detection import analyze_emotion
 from logger import log_event
 
@@ -35,16 +36,21 @@ async def frame(sid, data):
         gesture_result, processed_frame = process_gestures(frame)
         emotion_result = analyze_emotion(frame)
         
+        # Perform gesture classification if hands detected
+        gesture_label = "None"
+        if gesture_result["landmarks"]:
+            gesture_label = classify_gesture(gesture_result["landmarks"][0])
+            
         # Log event
         person = face_result.get("results", [{}])[0].get("identity", "Unknown") if face_result.get("status") == "success" else "Unknown"
         emotion = emotion_result.get("emotion", "Neutral") if emotion_result.get("status") == "success" else "Neutral"
         
-        log_event(person=person, emotion=emotion, gesture="None", alphabet="None")
+        log_event(person=person, emotion=emotion, gesture=gesture_label, alphabet="None")
         
         # Send result back
         await sio.emit('recognition_result', {
             "face": face_result,
-            "gesture": gesture_result,
+            "gesture": {**gesture_result, "label": gesture_label},
             "emotion": emotion_result
         }, to=sid)
     except Exception as e:
