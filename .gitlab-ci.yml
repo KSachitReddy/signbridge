@@ -16,3 +16,10 @@ build-job:
         - package-lock.json
     paths:
       - node_modules/
+
+lint-job:
+  stage: lint
+  image: node:20
+  script:
+    - npm ci
+    - npm run lint
