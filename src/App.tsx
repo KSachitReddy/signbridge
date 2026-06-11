@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import CameraTranslationPage from './pages/CameraTranslationPage';
 import AuthPage from './pages/AuthPage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Route path="/camera" element={<CameraTranslationPage />} />
         <Route path="/login" element={<AuthPage type="login" />} />
         <Route path="/register" element={<AuthPage type="register" />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   );
