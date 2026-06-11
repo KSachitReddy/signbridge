@@ -23,3 +23,10 @@ lint-job:
   script:
     - npm ci
     - npm run lint
+
+knip-job:
+  stage: lint
+  image: node:20
+  script:
+    - npm ci
+    - npx knip
