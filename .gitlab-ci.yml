@@ -17,6 +17,13 @@ build-job:
     paths:
       - node_modules/
 
+test-job:
+  stage: test
+  image: node:20
+  script:
+    - npm ci
+    - npx vitest run
+
 lint-job:
   stage: lint
   image: node:20
