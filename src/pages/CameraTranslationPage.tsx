@@ -16,7 +16,7 @@ const CameraTranslationPage = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         if (video) video.srcObject = stream;
       } catch (err) {
-        console.error("Error accessing camera:", err);
+        console.error('Error accessing camera:', err);
       }
     };
     startCamera();
@@ -24,7 +24,7 @@ const CameraTranslationPage = () => {
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
       if (video && video.srcObject) {
-        (video.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+        (video.srcObject as MediaStream).getTracks().forEach((track) => track.stop());
       }
     };
   }, []);
@@ -33,14 +33,14 @@ const CameraTranslationPage = () => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
     if (!canvas || !video) return;
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     ctx.fillStyle = '#10B981';
     landmarks.forEach((landmark) => {
       ctx.beginPath();
@@ -55,7 +55,7 @@ const CameraTranslationPage = () => {
       const detectionLoop = () => {
         if (video) {
           const result = recognize(video);
-          
+
           if (result) {
             if (result.gesture) setPrediction(result.gesture);
             // Simulate confidence
@@ -65,7 +65,7 @@ const CameraTranslationPage = () => {
         }
         requestRef.current = requestAnimationFrame(detectionLoop);
       };
-      
+
       requestRef.current = requestAnimationFrame(detectionLoop);
       return () => {
         if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -95,13 +95,17 @@ const CameraTranslationPage = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
       <h1 className="text-3xl font-bold mb-6 text-blue-400">SignBridge AI Dashboard</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Camera Panel */}
         <div className="relative bg-gray-800 rounded-xl overflow-hidden shadow-xl border border-gray-700">
           <video ref={videoRef} autoPlay playsInline className="w-full h-auto" />
           <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
-          {!isReady && <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80">Initializing AI...</div>}
+          {!isReady && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/80">
+              Initializing AI...
+            </div>
+          )}
         </div>
 
         {/* Results Panel */}
@@ -118,11 +122,20 @@ const CameraTranslationPage = () => {
             </div>
             <p className="text-right text-sm">{(confidence * 100).toFixed(0)}%</p>
           </div>
-          
+
           <div className="mt-auto grid grid-cols-2 gap-2">
-            <button onClick={handleSpeak} className="bg-blue-600 hover:bg-blue-700 p-2 rounded">🔊 Speak</button>
-            <button onClick={handleCopy} className="bg-gray-700 hover:bg-gray-600 p-2 rounded">📋 Copy</button>
-            <button onClick={handleEmergency} className="bg-red-600 hover:bg-red-700 p-2 rounded col-span-2 mt-2">🆘 Emergency</button>
+            <button onClick={handleSpeak} className="bg-blue-600 hover:bg-blue-700 p-2 rounded">
+              🔊 Speak
+            </button>
+            <button onClick={handleCopy} className="bg-gray-700 hover:bg-gray-600 p-2 rounded">
+              📋 Copy
+            </button>
+            <button
+              onClick={handleEmergency}
+              className="bg-red-600 hover:bg-red-700 p-2 rounded col-span-2 mt-2"
+            >
+              🆘 Emergency
+            </button>
           </div>
         </div>
       </div>
@@ -131,3 +144,5 @@ const CameraTranslationPage = () => {
 };
 
 export default CameraTranslationPage;
+
+// Formatted with Prettier
