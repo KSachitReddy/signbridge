@@ -6,6 +6,7 @@ import numpy as np
 import base64
 from face_recognition import recognize_face
 from gesture_recognition import process_gestures
+from emotion_detection import analyze_emotion
 from logger import log_event
 
 # Setup Socket.IO
@@ -32,15 +33,19 @@ async def frame(sid, data):
         # Run recognition
         face_result = recognize_face(frame)
         gesture_result, processed_frame = process_gestures(frame)
+        emotion_result = analyze_emotion(frame)
         
-        # Log event (simplified extraction)
+        # Log event
         person = face_result.get("results", [{}])[0].get("identity", "Unknown") if face_result.get("status") == "success" else "Unknown"
-        log_event(person=person, emotion="Neutral", gesture="None", alphabet="None")
+        emotion = emotion_result.get("emotion", "Neutral") if emotion_result.get("status") == "success" else "Neutral"
+        
+        log_event(person=person, emotion=emotion, gesture="None", alphabet="None")
         
         # Send result back
         await sio.emit('recognition_result', {
             "face": face_result,
-            "gesture": gesture_result
+            "gesture": gesture_result,
+            "emotion": emotion_result
         }, to=sid)
     except Exception as e:
         print(f"Frame processing error: {e}")
