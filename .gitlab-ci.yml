@@ -30,3 +30,9 @@ knip-job:
   script:
     - npm ci
     - npx knip
+
+secret-detection-job:
+  stage: security
+  image: zricethezav/gitleaks:latest
+  script:
+    - gitleaks detect --verbose --source .
