@@ -1,8 +1,11 @@
 import './App.css';
 import { useVideoStreaming } from './useVideoStreaming';
+import { AnalyticsDashboard } from './AnalyticsDashboard';
 
 function App() {
   const { videoRef, canvasRef, recognitionResult } = useVideoStreaming();
+  // Placeholder logs for now
+  const logs = [{emotion: 'Happy'}, {emotion: 'Neutral'}];
 
   return (
     <div className="app-container">
@@ -17,10 +20,11 @@ function App() {
           
           {recognitionResult && (
             <div className="overlay">
-              <p>Person: {recognitionResult.results?.[0]?.identity || 'Unknown'}</p>
+              <p>Person: {recognitionResult.face?.results?.[0]?.identity || 'Unknown'}</p>
             </div>
           )}
         </div>
+        <AnalyticsDashboard logs={logs} />
       </main>
     </div>
   );
