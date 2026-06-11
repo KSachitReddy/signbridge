@@ -3,6 +3,7 @@
 Thank you for your interest in contributing to SignBridge AI!
 
 ## How to Contribute
+
 1. Fork the repository.
 2. Create a new branch for your feature or fix.
 3. Commit your changes.

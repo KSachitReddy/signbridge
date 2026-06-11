@@ -3,9 +3,9 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 export const AnalyticsDashboard = ({ logs }) => {
   // Simple aggregation for the demo
   const data = [
-    { name: 'Happy', value: logs.filter(l => l.emotion === 'Happy').length },
-    { name: 'Neutral', value: logs.filter(l => l.emotion === 'Neutral').length },
-    { name: 'Sad', value: logs.filter(l => l.emotion === 'Sad').length },
+    { name: 'Happy', value: logs.filter((l) => l.emotion === 'Happy').length },
+    { name: 'Neutral', value: logs.filter((l) => l.emotion === 'Neutral').length },
+    { name: 'Sad', value: logs.filter((l) => l.emotion === 'Sad').length },
   ];
 
   return (

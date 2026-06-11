@@ -6,8 +6,8 @@ The following versions of SignBridge currently receive security updates.
 
 | Version | Supported |
 | ------- | --------- |
-| 1.x     | ✅         |
-| < 1.0   | ❌         |
+| 1.x     | ✅        |
+| < 1.0   | ❌        |
 
 ---
 
@@ -27,12 +27,12 @@ Please do not create public issues for security vulnerabilities.
 
 Instead, send a private report containing:
 
-* Vulnerability description
-* Affected component
-* Steps to reproduce
-* Potential impact
-* Proof of concept (if available)
-* Suggested mitigation (optional)
+- Vulnerability description
+- Affected component
+- Steps to reproduce
+- Potential impact
+- Proof of concept (if available)
+- Suggested mitigation (optional)
 
 ---
 
@@ -56,16 +56,16 @@ After receiving a report:
 
 Examples:
 
-* Remote code execution
-* Authentication bypass
-* Arbitrary file access
-* Privilege escalation
-* Database compromise
+- Remote code execution
+- Authentication bypass
+- Arbitrary file access
+- Privilege escalation
+- Database compromise
 
 Target remediation:
 
-* Immediate investigation
-* Patch released as soon as possible
+- Immediate investigation
+- Patch released as soon as possible
 
 ---
 
@@ -73,14 +73,14 @@ Target remediation:
 
 Examples:
 
-* Exposure of sensitive user data
-* Unauthorized access to protected resources
-* Session hijacking
-* JWT token compromise
+- Exposure of sensitive user data
+- Unauthorized access to protected resources
+- Session hijacking
+- JWT token compromise
 
 Target remediation:
 
-* High priority patch release
+- High priority patch release
 
 ---
 
@@ -88,13 +88,13 @@ Target remediation:
 
 Examples:
 
-* Limited information disclosure
-* Input validation weaknesses
-* Configuration weaknesses
+- Limited information disclosure
+- Input validation weaknesses
+- Configuration weaknesses
 
 Target remediation:
 
-* Included in the next scheduled release
+- Included in the next scheduled release
 
 ---
 
@@ -102,12 +102,12 @@ Target remediation:
 
 Examples:
 
-* Security hardening recommendations
-* Minor security misconfigurations
+- Security hardening recommendations
+- Minor security misconfigurations
 
 Target remediation:
 
-* Future maintenance release
+- Future maintenance release
 
 ---
 
@@ -117,24 +117,24 @@ SignBridge follows the following security practices:
 
 ## Authentication
 
-* Password hashing using modern cryptographic algorithms
-* Token-based authentication
-* Session validation
-* Access control enforcement
+- Password hashing using modern cryptographic algorithms
+- Token-based authentication
+- Session validation
+- Access control enforcement
 
 ## Secrets Management
 
-* Secrets must never be committed to Git
-* Environment variables must be used
-* Production secrets must be stored securely
+- Secrets must never be committed to Git
+- Environment variables must be used
+- Production secrets must be stored securely
 
 ## Dependency Security
 
 The project regularly audits dependencies using:
 
-* npm audit
-* pnpm audit
-* GitLab Dependency Scanning
+- npm audit
+- pnpm audit
+- GitLab Dependency Scanning
 
 Vulnerable dependencies should be updated promptly.
 
@@ -142,9 +142,9 @@ Vulnerable dependencies should be updated promptly.
 
 The repository includes:
 
-* Gitleaks
-* Pre-commit scanning
-* CI security checks
+- Gitleaks
+- Pre-commit scanning
+- CI security checks
 
 Any detected secrets must be removed immediately.
 
@@ -152,9 +152,9 @@ Any detected secrets must be removed immediately.
 
 All external input should be:
 
-* Validated
-* Sanitized
-* Type checked
+- Validated
+- Sanitized
+- Type checked
 
 Input should never be trusted by default.
 
@@ -168,13 +168,13 @@ Services, users, and applications should operate with the minimum permissions ne
 
 Developers contributing to SignBridge must:
 
-* Follow secure coding practices
-* Validate all user input
-* Avoid hardcoded credentials
-* Avoid storing secrets in source code
-* Keep dependencies updated
-* Write security-focused tests
-* Review authentication and authorization logic carefully
+- Follow secure coding practices
+- Validate all user input
+- Avoid hardcoded credentials
+- Avoid storing secrets in source code
+- Keep dependencies updated
+- Write security-focused tests
+- Review authentication and authorization logic carefully
 
 ---
 
@@ -182,10 +182,10 @@ Developers contributing to SignBridge must:
 
 We ask security researchers to:
 
-* Avoid disrupting production services
-* Avoid accessing user data unnecessarily
-* Avoid public disclosure before remediation
-* Provide sufficient technical detail for reproduction
+- Avoid disrupting production services
+- Avoid accessing user data unnecessarily
+- Avoid public disclosure before remediation
+- Provide sufficient technical detail for reproduction
 
 Researchers acting in good faith will be treated respectfully and professionally.
 
@@ -195,10 +195,10 @@ Researchers acting in good faith will be treated respectfully and professionally
 
 SignBridge security processes aim to align with:
 
-* OWASP Top 10
-* Secure Software Development Lifecycle (SSDLC)
-* Principle of Least Privilege
-* Responsible Disclosure Practices
+- OWASP Top 10
+- Secure Software Development Lifecycle (SSDLC)
+- Principle of Least Privilege
+- Responsible Disclosure Practices
 
 ---
 
@@ -207,4 +207,3 @@ SignBridge security processes aim to align with:
 Security advisories and remediation information will be published through project releases and repository announcements.
 
 Thank you for helping keep SignBridge secure.
-

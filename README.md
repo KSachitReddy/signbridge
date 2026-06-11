@@ -18,16 +18,19 @@
 ## ✨ Features
 
 ### 🎓 Learning Mode
+
 - Interactive video lessons for sign language
 - AI-powered practice sessions with instant feedback
 - Gamified learning experience to keep users engaged
 
 ### 🔄 Translation Mode
+
 - **Real-time sign-to-text** translation using webcam-based gesture recognition
 - **Text-to-sign** demonstration for hearing users
 - Dual language support for two-way communication
 
 ### 🌍 Accessibility First
+
 - No special hardware required — just a webcam and browser
 - Fully responsive design for desktop and mobile
 - Privacy-focused: all video processing happens on-device
@@ -36,22 +39,22 @@
 
 ## 🎯 Who We Serve
 
-| Audience | Use Case |
-|----------|----------|
-| 🧏 Deaf & Mute Individuals | Empowering day-to-day communication and self-learning |
-| 🏫 Educators & Institutions | Tools for inclusive education and skill development |
-| 🏢 Businesses & Organizations | Facilitating workplace inclusivity and accessibility |
+| Audience                      | Use Case                                              |
+| ----------------------------- | ----------------------------------------------------- |
+| 🧏 Deaf & Mute Individuals    | Empowering day-to-day communication and self-learning |
+| 🏫 Educators & Institutions   | Tools for inclusive education and skill development   |
+| 🏢 Businesses & Organizations | Facilitating workplace inclusivity and accessibility  |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js / React |
-| Styling | Tailwind CSS |
-| AI / ML | Computer Vision, Gesture Recognition |
-| Deployment | Vercel |
+| Layer      | Technology                           |
+| ---------- | ------------------------------------ |
+| Frontend   | Next.js / React                      |
+| Styling    | Tailwind CSS                         |
+| AI / ML    | Computer Vision, Gesture Recognition |
+| Deployment | Vercel                               |
 
 ---
 
@@ -84,8 +87,8 @@ npm run dev
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Vercel Link
-   
-  Open  https://signbridge-ai-final.vercel.app
+
+Open https://signbridge-ai-final.vercel.app
 
 ### Building for Production
 
@@ -154,7 +157,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 💙 Mission
 
-> *"To provide accessible and innovative solutions that enhance communication, education, and employment opportunities for the deaf and mute community, fostering a more inclusive society."*
+> _"To provide accessible and innovative solutions that enhance communication, education, and employment opportunities for the deaf and mute community, fostering a more inclusive society."_
 
 ---
 

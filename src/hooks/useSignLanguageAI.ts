@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-import { FilesetResolver, GestureRecognizer, type GestureRecognizerResult, type Landmark } from "@mediapipe/tasks-vision";
+import {
+  FilesetResolver,
+  GestureRecognizer,
+  type GestureRecognizerResult,
+  type Landmark,
+} from '@mediapipe/tasks-vision';
 
 export const useSignLanguageAI = () => {
   const [isReady, setIsReady] = useState(false);
@@ -9,18 +14,19 @@ export const useSignLanguageAI = () => {
     const setup = async () => {
       try {
         const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+          'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
         );
         recognizerRef.current = await GestureRecognizer.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
-            delegate: "GPU"
+            modelAssetPath:
+              'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task',
+            delegate: 'GPU',
           },
-          runningMode: "VIDEO"
+          runningMode: 'VIDEO',
         });
         setIsReady(true);
       } catch (err) {
-        console.error("Error initializing MediaPipe:", err);
+        console.error('Error initializing MediaPipe:', err);
       }
     };
     setup();
@@ -32,14 +38,17 @@ export const useSignLanguageAI = () => {
     };
   }, []);
 
-  const recognize = (videoElement: HTMLVideoElement): { gesture: string | null; landmarks: Landmark[] | null } => {
-    if (!recognizerRef.current || videoElement.readyState !== 4) return { gesture: null, landmarks: null };
+  const recognize = (
+    videoElement: HTMLVideoElement
+  ): { gesture: string | null; landmarks: Landmark[] | null } => {
+    if (!recognizerRef.current || videoElement.readyState !== 4)
+      return { gesture: null, landmarks: null };
 
     const results: GestureRecognizerResult = recognizerRef.current.recognizeForVideo(
       videoElement,
       performance.now()
     );
-    
+
     let gesture = null;
     let landmarks = null;
     if (results.gestures.length > 0) {

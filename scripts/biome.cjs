@@ -1,4 +1,3 @@
-/* eslint-disable */
 const { spawnSync } = require("child_process");
 
 if (process.platform === "win32" && process.arch === "ia32") {

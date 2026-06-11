@@ -17,7 +17,7 @@ export const useVideoStreaming = () => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
-        
+
         // Stream frames
         setInterval(() => {
           const canvas = canvasRef.current;
