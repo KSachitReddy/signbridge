@@ -3,3 +3,9 @@ repos:
     rev: v8.18.2
     hooks:
       - id: gitleaks
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.0.0
+    hooks:
+      - id: eslint
+        files: \.[jt]sx?$
+        types: [file]
