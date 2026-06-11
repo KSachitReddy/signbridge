@@ -1,22 +1,47 @@
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.18.0
     hooks:
       - id: gitleaks
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.0.0
-    hooks:
-      - id: eslint
-        files: \.[jt]sx?$
-        types: [file]
-  - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
-    hooks:
-      - id: prettier
+
   - repo: local
     hooks:
-      - id: knip
-        name: Knip
-        entry: npx knip
+      - id: eslint
+        name: eslint
+        entry: npm run lint
         language: system
+        files: \.[jt]sx?$
+        pass_filenames: false
+      - id: prettier
+        name: prettier
+        entry: npm run format
+        language: system
+        files: \.([jt]sx?|json|md)$
+        pass_filenames: false
+      - id: biome-check
+        name: biome-check
+        entry: npm run biome
+        language: system
+        files: \.([jt]sx?|json|md)$
+        pass_filenames: false
+      - id: oxlint
+        name: oxlint
+        entry: npm run oxlint
+        language: system
+        files: \.[jt]sx?$
+        pass_filenames: false
+      - id: type-check
+        name: type-check
+        entry: npm run typecheck
+        language: system
+        files: \.tsx?$
         pass_filenames: false

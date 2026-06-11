@@ -1,0 +1,21 @@
+title = "SignBridge Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allowlist for SignBridge"
+paths = [
+  '''(.*?)(jpg|jpeg|png|gif|svg|ico|webp)$''',
+  '''node_modules''',
+  '''dist''',
+  '''build''',
+  '''coverage''',
+  '''\.env\.example''',
+]
+regexes = [
+  '''change-me-please-use-a-long-random-string''',
+  '''change-me-please-use-another-long-random-string''',
+  '''replace-me-in-production-access''',
+  '''replace-me-in-production-refresh''',
+]

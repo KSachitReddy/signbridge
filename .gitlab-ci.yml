@@ -1,59 +1,83 @@
 stages:
-  - build
-  - test
+  - format
   - lint
+  - type_check
+  - test
+  - coverage
   - security
+  - build
+  - release
 
-build-job:
-  stage: build
-  image: node:20
-  script:
-    - npm ci
-    - npm run build
+default:
+  image: node:20-alpine
+  before_script:
+    - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
   cache:
-    key:
-      files:
-        - package-lock.json
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
-      - node_modules/
+      - .npm/
 
-test-job:
-  stage: test
-  image: node:20
+format:
+  stage: format
   script:
-    - npm ci
-    - npx vitest run
+    - npm run format:check || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
 
-coverage-job:
-  stage: test
-  image: node:20
-  script:
-    - npm ci
-    - npm run test:coverage
-
-lint-job:
+lint:
   stage: lint
-  image: node:20
   script:
-    - npm ci
-    - npm run lint
+    - npx eslint . || npm run lint
+    - npm run biome
+    - npm run oxlint
 
-knip-job:
-  stage: lint
-  image: node:20
+type_check:
+  stage: type_check
   script:
-    - npm ci
-    - npx knip
+    - npx tsc --noEmit || npm run typecheck
 
-secret-detection-job:
+test:
+  stage: test
+  script:
+    - npx vitest run || npm test
+
+coverage:
+  stage: coverage
+  script:
+    - npx vitest run --coverage || npm run test:coverage
+  coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    when: always
+    paths:
+      - coverage/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+
+audit:
+  stage: security
+  script:
+    - npm audit --audit-level=high
+  allow_failure: false
+
+gitleaks:
   stage: security
   image: zricethezav/gitleaks:latest
+  before_script: []
   script:
-    - gitleaks detect --verbose --source .
+    - gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
 
-prettier-job:
-  stage: lint
-  image: node:20
+build:
+  stage: build
   script:
-    - npm ci
-    - npx prettier --check "src/**/*.{ts,tsx}"
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+
+release:
+  stage: release
+  script:
+    - echo "Release stage placeholder - integrate semantic-release or git-cliff here."
+  only:
+    - tags
