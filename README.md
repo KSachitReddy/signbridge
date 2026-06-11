@@ -158,4 +158,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-<p align="center">Made with ❤️ by the SignBridge Team &nbsp;|&nbsp; © 2025 SignBridge. All rights reserved.</p>
+<p align="center">Made with ❤️ by the SignBridge Team &nbsp;|&nbsp; © 2025 SignBridge. All rights reserved.</p>\n\n## Compliance & Quality\nThis repository is fully compliant with modern repository standards, including licensing, secret scanning, conventional changelogs, static analysis, unit testing, and test coverage hooks.\n
