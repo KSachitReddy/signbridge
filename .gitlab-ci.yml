@@ -24,6 +24,13 @@ test-job:
     - npm ci
     - npx vitest run
 
+coverage-job:
+  stage: test
+  image: node:20
+  script:
+    - npm ci
+    - npm run test:coverage
+
 lint-job:
   stage: lint
   image: node:20
