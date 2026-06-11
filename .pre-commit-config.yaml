@@ -13,3 +13,10 @@ repos:
     rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
+  - repo: local
+    hooks:
+      - id: knip
+        name: Knip
+        entry: npx knip
+        language: system
+        pass_filenames: false
