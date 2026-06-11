@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import base64
 from face_recognition import recognize_face
+from gesture_recognition import process_gestures
 
 # Setup Socket.IO
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
@@ -28,10 +29,14 @@ async def frame(sid, data):
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         
         # Run recognition
-        result = recognize_face(frame)
+        face_result = recognize_face(frame)
+        gesture_result, processed_frame = process_gestures(frame)
         
         # Send result back
-        await sio.emit('recognition_result', result, to=sid)
+        await sio.emit('recognition_result', {
+            "face": face_result,
+            "gesture": gesture_result
+        }, to=sid)
     except Exception as e:
         print(f"Frame processing error: {e}")
 
