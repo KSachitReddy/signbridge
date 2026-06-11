@@ -1,11 +1,39 @@
 from fastapi import FastAPI
 import uvicorn
+import socketio
+import cv2
+import numpy as np
+import base64
+from face_recognition import recognize_face
 
+# Setup Socket.IO
+sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
 app = FastAPI()
+socket_app = socketio.ASGIApp(sio, app)
 
 @app.get("/")
 async def root():
     return {"message": "SignBridge AI Backend Running"}
 
+@sio.event
+async def connect(sid, environ):
+    print(f"Client connected: {sid}")
+
+@sio.event
+async def frame(sid, data):
+    """Processes a video frame received from the client."""
+    try:
+        # Decode base64 frame
+        nparr = np.frombuffer(base64.b64decode(data.split(',')[1]), np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        # Run recognition
+        result = recognize_face(frame)
+        
+        # Send result back
+        await sio.emit('recognition_result', result, to=sid)
+    except Exception as e:
+        print(f"Frame processing error: {e}")
+
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app:socket_app", host="0.0.0.0", port=8000, reload=True)
