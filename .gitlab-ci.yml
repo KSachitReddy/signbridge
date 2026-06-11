@@ -36,3 +36,10 @@ secret-detection-job:
   image: zricethezav/gitleaks:latest
   script:
     - gitleaks detect --verbose --source .
+
+prettier-job:
+  stage: lint
+  image: node:20
+  script:
+    - npm ci
+    - npx prettier --check "src/**/*.{ts,tsx}"
