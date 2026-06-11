@@ -6,6 +6,7 @@ import numpy as np
 import base64
 from face_recognition import recognize_face
 from gesture_recognition import process_gestures
+from logger import log_event
 
 # Setup Socket.IO
 sio = socketio.AsyncServer(async_mode='asgi', cors_allowed_origins='*')
@@ -31,6 +32,10 @@ async def frame(sid, data):
         # Run recognition
         face_result = recognize_face(frame)
         gesture_result, processed_frame = process_gestures(frame)
+        
+        # Log event (simplified extraction)
+        person = face_result.get("results", [{}])[0].get("identity", "Unknown") if face_result.get("status") == "success" else "Unknown"
+        log_event(person=person, emotion="Neutral", gesture="None", alphabet="None")
         
         # Send result back
         await sio.emit('recognition_result', {
