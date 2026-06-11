@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: signbridge-backend
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: uvicorn backend.app:socket_app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PORT
+        value: 8000
+    plan: starter
+
+  - type: static
+    name: signbridge-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
