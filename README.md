@@ -1,17 +1,13 @@
+# SignBridge AI
+
+SignBridge AI is an AI-driven project designed to facilitate communication by translating sign language.
+
+## Project Link
+[https://signbridge-ai-final.vercel.app](https://signbridge-ai-final.vercel.app)
+
+---
 # React + TypeScript + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-
-## Project Link :-https://signbridge-ai-final.vercel.app
-
-## React Compiler
-
+... (rest of the content)
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
 ## Expanding the ESLint configuration
