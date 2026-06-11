@@ -1,12 +1,20 @@
-import cv2
 import json
 import os
-import numpy as np
 from deepface import DeepFace
 
 # Configuration
 FACE_DB_PATH = "../database/faces.json"
 FACE_IMAGE_DIR = "../database/faces/"
+
+# Pre-load the model to avoid re-loading on every frame
+print("Loading face recognition model...")
+MODEL_NAME = 'VGG-Face'
+# Pre-warm the model
+try:
+    DeepFace.build_model(MODEL_NAME)
+    print("Face model loaded successfully.")
+except Exception as e:
+    print(f"Error pre-loading face model: {e}")
 
 # Ensure storage exists
 os.makedirs(FACE_IMAGE_DIR, exist_ok=True)
@@ -15,6 +23,8 @@ if not os.path.exists(FACE_DB_PATH):
         json.dump([], f)
 
 def load_db():
+    if not os.path.exists(FACE_DB_PATH):
+        return []
     with open(FACE_DB_PATH, "r") as f:
         return json.load(f)
 
@@ -25,26 +35,27 @@ def save_db(db):
 def recognize_face(frame):
     """Detects and recognizes faces in a frame."""
     try:
-        # Use DeepFace for detection and recognition
-        # Note: 'enforce_detection=False' allows processing without forcing face detection immediately
-        results = DeepFace.find(img_path=frame, db_path=FACE_IMAGE_DIR, model_name='VGG-Face', enforce_detection=False)
+        # Use pre-loaded model
+        results = DeepFace.find(img_path=frame, db_path=FACE_IMAGE_DIR, model_name=MODEL_NAME, enforce_detection=False)
         
-        # Simple placeholder logic for returning results
-        # In a full implementation, integrate with DeepFace results
+        # Simplified result handling
         return {"status": "success", "results": results}
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
 def register_face(frame, name):
     """Registers a new face image and saves metadata."""
-    face_id = f"Person_{len(load_db()):03d}"
+    db = load_db()
+    face_id = f"Person_{len(db):03d}"
     filename = f"{face_id}.jpg"
     filepath = os.path.join(FACE_IMAGE_DIR, filename)
     
+    # Save image
+    import cv2
     cv2.imwrite(filepath, frame)
     
-    # Generate embedding (simplified)
-    embedding = [0.0] * 128 # Placeholder for actual embedding logic
+    # Placeholder for actual embedding logic
+    embedding = [0.0] * 128 
     
     new_entry = {
         "name": name,
@@ -54,7 +65,6 @@ def register_face(frame, name):
         "registered_date": "2026-06-11"
     }
     
-    db = load_db()
     db.append(new_entry)
     save_db(db)
     return new_entry
