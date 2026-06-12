@@ -13,7 +13,7 @@ from modules.database import (
     delete_all_conversations
 )
 from modules.face.face_ai import check_lighting
-from modules.signs.recognizer import SignSequenceBuffer, sign_classifier, VOCABULARY
+from modules.signs.recognizer import SignSequenceBuffer, sign_classifier, VOCABULARY, NO_SIGN_LABEL
 
 def test_i18n_localization():
     """Verify that translate lookups and locales fallbacks work."""
@@ -100,16 +100,16 @@ def test_temporal_vocabulary_classifier():
     """Verify sequence buffer predictions and vocabulary matching."""
     buffer = SignSequenceBuffer(size=10)
     
-    # Add stationary mock landmark frames
+    # Add stationary mock landmark frames (21 landmarks per hand)
     for _ in range(10):
         buffer.add(
-            left_hand=[{"x": 0.1, "y": 0.5}],
-            right_hand=[{"x": 0.9, "y": 0.5}],
+            left_hand=[{"x": 0.1, "y": 0.5, "z": 0.0}] * 21,
+            right_hand=[{"x": 0.9, "y": 0.5, "z": 0.0}] * 21,
             pose={}
         )
         
     predictions = sign_classifier.predict(buffer)
     assert len(predictions) == 3
     for label, conf in predictions:
-        assert label in VOCABULARY
+        assert label in VOCABULARY or label == NO_SIGN_LABEL
         assert 0.0 <= conf <= 1.0

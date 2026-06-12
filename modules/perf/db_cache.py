@@ -47,6 +47,7 @@ class _TTLCache:
 
 _face_vector_cache = _TTLCache(ttl=8.0)
 _people_cache = _TTLCache(ttl=8.0)
+_centroids_cache = _TTLCache(ttl=8.0)
 
 
 def get_cached_face_vectors() -> list:
@@ -77,6 +78,35 @@ def get_cached_face_vectors() -> list:
     return vectors
 
 
+def get_cached_face_centroids() -> dict[str, np.ndarray]:
+    """
+    Groups face vectors by person_id, averages their pre-normalized embeddings,
+    and returns a mapping of person_id -> normalized centroid embedding vector.
+    Calculated and cached with 8s TTL.
+    """
+    cached = _centroids_cache.get("all")
+    if cached is not None:
+        return cached
+
+    vectors = get_cached_face_vectors()
+    from collections import defaultdict
+    grouped = defaultdict(list)
+    for ev in vectors:
+        ref = ev.get("_norm_emb")
+        if ref:
+            grouped[ev["person_id"]].append(ref)
+
+    centroids = {}
+    for pid, vecs in grouped.items():
+        arr = np.mean(vecs, axis=0)
+        n = np.linalg.norm(arr)
+        if n > 1e-8:
+            arr = arr / n
+        centroids[pid] = arr
+    _centroids_cache.put("all", centroids)
+    return centroids
+
+
 def get_cached_people() -> list:
     """Returns people records from in-memory cache (8s TTL) or DB."""
     cached = _people_cache.get("all")
@@ -92,3 +122,4 @@ def invalidate_face_cache() -> None:
     """Call after enrollment so the next recognition reads fresh data from DB."""
     _face_vector_cache.evict("all")
     _people_cache.evict("all")
+    _centroids_cache.evict("all")

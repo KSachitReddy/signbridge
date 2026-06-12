@@ -257,14 +257,6 @@ class TemporalSignClassifier:
                 classes = self.clf.classes_
                 preds  = sorted(zip(classes, probs), key=lambda x: x[1], reverse=True)
 
-                top_label, top_conf = preds[0]
-
-                # Gate 3: confidence threshold
-                if top_conf < CONFIDENCE_THRESHOLD or top_label == NO_SIGN_LABEL:
-                    return [(NO_SIGN_LABEL, float(1.0 - top_conf)),
-                            (NO_SIGN_LABEL, 0.0),
-                            (NO_SIGN_LABEL, 0.0)]
-
                 while len(preds) < 3:
                     preds.append((NO_SIGN_LABEL, 0.0))
                 return preds[:3]
@@ -322,9 +314,6 @@ class TemporalSignClassifier:
         for k in scores:
             scores[k] /= total
         preds = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
-        # Apply confidence gate to heuristic too
-        if preds[0][1] < CONFIDENCE_THRESHOLD:
-            return [(NO_SIGN_LABEL, 1.0 - preds[0][1]), (NO_SIGN_LABEL, 0.0), (NO_SIGN_LABEL, 0.0)]
         return preds
 
 

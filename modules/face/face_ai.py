@@ -286,6 +286,71 @@ def validate_and_enroll_face(frame, name, notes=""):
     }
 
 
+def classify_expression(landmarks) -> str:
+    """
+    Heuristically classifies facial expressions using MediaPipe FaceMesh landmarks.
+    Supported: Neutral, Happy, Sad, Angry, Fear, Pain, Surprised.
+    """
+    if len(landmarks) < 468:
+        return "Neutral"
+
+    # 3D Euclidean distance helper
+    def dist(i1, i2):
+        p1 = landmarks[i1]
+        p2 = landmarks[i2]
+        return float(np.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2))
+
+    try:
+        # Reference scale metrics
+        face_h = dist(10, 152)  # forehead to chin
+        face_w = dist(234, 454)  # outer cheekbones
+        ref_scale = max(face_h, 1e-6)
+
+        # Mouth features
+        m_width = dist(78, 308)
+        m_height = dist(13, 14)
+        mar = m_height / max(m_width, 1e-6)  # Mouth Aspect Ratio
+
+        # Smile/frown Y-coordinate comparison
+        # (Y increases downwards in image space. Corners higher up means corners_y is smaller than center_y)
+        corners_y = (landmarks[78].y + landmarks[308].y) / 2.0
+        center_y = (landmarks[13].y + landmarks[14].y) / 2.0
+        smile_score = (center_y - corners_y) / ref_scale
+
+        # Eyebrow height relative to eyes
+        left_brow_h = dist(105, 159)
+        right_brow_h = dist(334, 386)
+        brow_h = (left_brow_h + right_brow_h) / (2.0 * ref_scale)
+
+        # Eyebrow furrow / squeeze
+        brow_squeeze = dist(107, 336) / max(face_w, 1e-6)
+
+        # Eye openness aspect ratio
+        left_eye_h = dist(159, 145)
+        left_eye_w = dist(33, 133)
+        right_eye_h = dist(386, 374)
+        right_eye_w = dist(263, 362)
+        eye_ar = ((left_eye_h / max(left_eye_w, 1e-6)) + (right_eye_h / max(right_eye_w, 1e-6))) / 2.0
+
+        # Classification decision rules
+        if mar > 0.35 and brow_h > 0.085:
+            return "Surprised"
+        if smile_score > 0.012:
+            return "Happy"
+        if brow_squeeze < 0.17 and brow_h < 0.065:
+            return "Angry"
+        if brow_squeeze < 0.17 and eye_ar < 0.20:
+            return "Pain"
+        if brow_h > 0.08 and brow_squeeze < 0.18:
+            return "Fear"
+        if smile_score < -0.01 and brow_squeeze < 0.19:
+            return "Sad"
+    except Exception as e:
+        print(f"[FaceAI] Expression classification error: {e}")
+
+    return "Neutral"
+
+
 def recognize_multiple_faces(frame, run_mesh: bool = True):
     """
     Detects and identifies all faces using InsightFace.
@@ -329,18 +394,9 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
     if not faces:
         return results_list, frame
 
-    from modules.perf.db_cache import get_cached_face_vectors, get_cached_people
-    existing_vectors = get_cached_face_vectors()
+    from modules.perf.db_cache import get_cached_face_centroids, get_cached_people
+    centroids = get_cached_face_centroids()
     people_map = {p["id"]: p["name"] for p in get_cached_people()}
-
-    # Filter out any legacy vectors whose embedding dimension doesn't match InsightFace output
-    compatible_vectors = []
-    for ev in existing_vectors:
-        ev_emb = ev["embedding"]
-        if len(ev_emb) != _EXPECTED_EMBEDDING_DIM:
-            print(f"[FaceAI] Skipping legacy vector (dim={len(ev_emb)}) for person {ev['person_id']} — run purge_legacy_face_vectors() to clean up.")
-        else:
-            compatible_vectors.append(ev)
 
     # Multi-threshold settings
     THRESHOLD_KNOWN = 0.68
@@ -356,11 +412,13 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
 
         embedding = face.embedding.tolist()
 
-        # Spatial matching with MediaPipe centroids to get head orientation
+        # Spatial matching with MediaPipe centroids to get landmarks for orientation/expression
         orientation = "Front"
+        expression = "Neutral"
         for (cx, cy), lm in mp_centroids:
             if x1 <= cx <= x2 and y1 <= cy <= y2:
                 orientation = estimate_face_orientation(lm)
+                expression = classify_expression(lm)
                 break
 
         best_name = "Unknown Person"
@@ -373,15 +431,11 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
         if q_norm > 1e-8:
             q_arr /= q_norm
 
-        for ev in compatible_vectors:
-            # _norm_emb was pre-computed at cache-load time (unit vectors)
-            ref = ev.get("_norm_emb") or ev["embedding"]
-            sim = float(np.dot(q_arr, np.array(ref, dtype=np.float32)))
+        for pid, centroid in centroids.items():
+            sim = float(np.dot(q_arr, centroid))
             if sim > best_sim:
                 best_sim = sim
-                best_id = ev["person_id"]
-
-        expression = "Neutral"
+                best_id = pid
 
         # Decision making logic: below threshold remains Unknown.
         if best_sim >= THRESHOLD_KNOWN:
