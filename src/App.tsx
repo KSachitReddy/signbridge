@@ -50,6 +50,7 @@ function App() {
               <p>{t('person')}: {recognitionResult.face?.results?.[0]?.identity || t('unknown')}</p>
               <p>{t('gesture')}: {recognitionResult.gesture?.label || t('none')}</p>
               <p>{t('emotion')}: {recognitionResult.emotion?.emotion || t('neutral')}</p>
+              <p>🌐 {i18n.language.toUpperCase()}</p>
             </div>
           )}
         </div>
