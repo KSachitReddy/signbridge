@@ -144,13 +144,22 @@ st.sidebar.caption("ISL Accessibility Platform")
 
 # Target Quick Language Selector in Sidebar
 st.sidebar.markdown("---")
-sidebar_lang_title = "🌐 Target Language" if st.session_state.lang == "en" else "🌐 भाषा चुनें" if st.session_state.lang == "hi" else "🌐 భాష"
+sidebar_lang_title = "🌐 Target Language" if st.session_state.lang == "en" else "🌐 भाषा चुनें" if st.session_state.lang == "hi" else "🌐 భాష"      
 selected_sidebar_lang = st.sidebar.selectbox(
     sidebar_lang_title,
-    ["English", "Hindi", "Telugu"],
-    index=0 if st.session_state.lang == "en" else 1 if st.session_state.lang == "hi" else 2
+    ["English", "Hindi", "Telugu", "Tamil", "Kannada", "Malayalam", "Tulu"],
+    index=["en", "hi", "te", "ta", "kn", "ml", "tcy"].index(st.session_state.lang) if st.session_state.lang in ["en", "hi", "te", "ta", "kn", "ml", "tcy"] else 0
 )
-sidebar_lang_code = "en" if selected_sidebar_lang == "English" else "hi" if selected_sidebar_lang == "Hindi" else "te"
+lang_map = {
+    "English": "en",
+    "Hindi": "hi",
+    "Telugu": "te",
+    "Tamil": "ta",
+    "Kannada": "kn",
+    "Malayalam": "ml",
+    "Tulu": "tcy"
+}
+sidebar_lang_code = lang_map[selected_sidebar_lang]
 
 if sidebar_lang_code != st.session_state.lang:
     save_setting("ui_language", sidebar_lang_code)
@@ -173,7 +182,7 @@ if new_active_page != st.session_state.active_page:
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.info("🇮🇳 Supported languages: English, Hindi, Telugu")
+st.sidebar.info("🇮🇳 Supported languages: English, Hindi, Telugu, Tamil, Kannada, Malayalam, Tulu")
 
 # 6. Render Active View
 pages[st.session_state.active_page](lang=st.session_state.lang)

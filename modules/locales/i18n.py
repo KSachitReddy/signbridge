@@ -9,7 +9,7 @@ class I18nManager:
         self.load_translations()
         
     def load_translations(self):
-        for lang in ["en", "hi", "te"]:
+        for lang in ["en", "hi", "te", "ta", "kn", "ml", "tcy"]:
             path = os.path.join(LOCALES_DIR, f"{lang}.json")
             if os.path.exists(path):
                 try:
@@ -20,12 +20,12 @@ class I18nManager:
                     self.translations[lang] = {}
             else:
                 self.translations[lang] = {}
-                
+
     def translate(self, key, lang="en"):
         if not lang:
             lang = "en"
-        lang = lang.lower()[:2]
-        if lang not in ["en", "hi", "te"]:
+        lang = lang.lower()[:3] if lang.lower().startswith("tcy") else lang.lower()[:2]
+        if lang not in ["en", "hi", "te", "ta", "kn", "ml", "tcy"]:
             lang = "en"
             
         parts = key.split(".")
