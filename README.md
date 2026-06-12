@@ -37,6 +37,22 @@
 
 ---
 
+## 🌐 Supported Languages
+
+SignBridge AI now supports 7 major languages to facilitate wider accessibility across India:
+
+- **English (EN)**
+- **Telugu (TE)**
+- **Hindi (HI)**
+- **Tamil (TA)**
+- **Kannada (KN)**
+- **Malayalam (ML)**
+- **Tulu (TCY)**
+
+Users can switch between these languages instantly using the UI language selector.
+
+---
+
 ## 🎯 Who We Serve
 
 | Audience                      | Use Case                                              |
