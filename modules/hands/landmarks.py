@@ -85,9 +85,14 @@ def _draw_hand(frame, landmarks_px, color_joint, color_conn):
         cv2.circle(frame, landmarks_px[0], 6, color_joint, -1)
 
 
-def track_and_draw_hands(frame, use_mock=False):
+def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
     """
     Detects hands using MediaPipe HandLandmarker and draws skeleton on frame.
+
+    Args:
+        frame:     BGR image (numpy array) — drawn on in-place.
+        use_mock:  If True, use synthetic hand positions.
+        rgb_frame: Pre-converted RGB array. When provided, skips an extra cvtColor call.
     Returns: ({"left": [...], "right": [...]}, annotated frame)
     Each hand is a list of 21 dicts with x, y, z keys (normalized 0-1).
     """
@@ -100,7 +105,10 @@ def track_and_draw_hands(frame, use_mock=False):
         try:
             import mediapipe as mp
 
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if rgb_frame is not None:
+                rgb = rgb_frame
+            else:
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
             result = landmarker.detect(mp_image)
 

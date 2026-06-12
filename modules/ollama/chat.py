@@ -9,6 +9,8 @@ if Ollama is unavailable or the model is slow.
 import requests
 import json
 from modules.database import get_setting
+from modules.providers import get_provider_key
+from modules.providers.cloud import cloud_generate_response as _cloud_response
 
 # Curated fallback responses per sign (offline-first)
 FALLBACK_RESPONSES = {
@@ -74,7 +76,15 @@ def generate_response(sign: str, translation: str, person_name: str = "You", lan
         # Graceful fallback to dictionary if Ollama times out
         return _offline_response(sign, person_name, lang)
 
-    # ── Cloud AI providers (placeholder — requires API keys) ────────────────
+    # ── Cloud AI providers (BYOK) ───────────────────────────────────────────
+    if ai_provider in {"OpenAI", "Gemini", "Anthropic"}:
+        api_key = get_provider_key(ai_provider)
+        offline_fallback = _offline_response(sign, person_name, lang)
+        if not api_key:
+            return offline_fallback
+        return _cloud_response(ai_provider, sign, translation, person_name, lang,
+                               api_key, offline_fallback)
+
     return _offline_response(sign, person_name, lang)
 
 

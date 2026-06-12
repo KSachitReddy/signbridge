@@ -96,9 +96,14 @@ def _get_pose_landmarker():
     return _pose_landmarker
 
 
-def track_and_draw_pose(frame, use_mock=False):
+def track_and_draw_pose(frame, use_mock=False, rgb_frame=None):
     """
     Detects pose using MediaPipe PoseLandmarker and draws skeleton on frame.
+
+    Args:
+        frame:     BGR image (numpy array) — drawn on in-place.
+        use_mock:  If True, use synthetic joint positions.
+        rgb_frame: Pre-converted RGB array. When provided, skips an extra cvtColor call.
     Returns: (joints dict with normalized coords, annotated frame)
     """
     h, w = frame.shape[:2]
@@ -109,7 +114,10 @@ def track_and_draw_pose(frame, use_mock=False):
         try:
             import mediapipe as mp
 
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            if rgb_frame is not None:
+                rgb = rgb_frame
+            else:
+                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
             result = landmarker.detect(mp_image)
 

@@ -16,7 +16,7 @@ if sys.platform == 'win32':
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Import modules
-from modules.database.db_helper import (
+from modules.database import (
     save_person, get_all_people, delete_person,
     add_face_vector, get_all_face_vectors,
     add_conversation, get_conversations, delete_conversation,

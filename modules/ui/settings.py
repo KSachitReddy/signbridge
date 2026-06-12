@@ -3,7 +3,7 @@ import json
 from modules.locales import t
 from modules.database import get_setting, save_setting, get_all_people
 from modules.ollama import list_installed_models, download_model, delete_model
-from modules.providers import get_provider_key, save_provider_key, validate_key_format
+from modules.providers import get_provider_key, save_provider_key, validate_key_format, test_connection
 from modules.signs import (
     VOCABULARY,
     record_sign_sample,
@@ -50,14 +50,31 @@ def render_settings_page(lang="en"):
         # Keys input for BYOK
         if active_provider in ["OpenAI", "Gemini", "Anthropic"]:
             current_key = get_provider_key(active_provider)
-            input_key = st.text_input(f"Bring Your Own Key (BYOK) - {active_provider} API Key", value=current_key, type="password")
-            
-            if st.button("Validate & Save API Key"):
+            input_key = st.text_input(
+                f"Bring Your Own Key (BYOK) — {active_provider} API Key",
+                value=current_key,
+                type="password",
+            )
+
+            col_save_key, col_test_key = st.columns(2)
+            if col_save_key.button("💾 Validate & Save API Key", use_container_width=True):
                 if validate_key_format(active_provider, input_key):
                     save_provider_key(active_provider, input_key)
-                    st.success("API Key successfully encrypted and stored.")
+                    st.success("API Key encrypted and stored.")
                 else:
-                    st.error("Invalid API Key format pattern.")
+                    st.error("Invalid API Key format — check the key prefix and length.")
+
+            if col_test_key.button("🔌 Test Connection", use_container_width=True):
+                key_to_test = input_key or current_key
+                if not key_to_test:
+                    st.warning("Enter an API key before testing.")
+                else:
+                    with st.spinner(f"Testing {active_provider} connection…"):
+                        ok, msg = test_connection(active_provider, key_to_test)
+                    if ok:
+                        st.success(msg)
+                    else:
+                        st.error(msg)
                     
         # 4. Accessibility Settings (High Contrast, Large Text)
         theme_mode = st.selectbox(
