@@ -35,7 +35,10 @@ function App() {
   return (
     <div className="app-container">
       <header className="header">
-        <h1>{t('title')}</h1>
+        <div className="header-left">
+          <button className="nav-btn">🏠</button>
+          <h1>{t('title')}</h1>
+        </div>
         <LanguageSwitcher />
       </header>
       
