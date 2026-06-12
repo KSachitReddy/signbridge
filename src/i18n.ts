@@ -1,112 +1,14 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import { resources } from './locales';
 
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     fallbackLng: 'en',
-    resources: {
-      en: {
-        translation: {
-          title: "SignBridge AI",
-          person: "Person",
-          gesture: "Gesture",
-          emotion: "Emotion",
-          unknown: "Unknown",
-          none: "None",
-          neutral: "Neutral",
-          analyticsTitle: "Analytics Dashboard",
-          happy: "Happy",
-          sad: "Sad"
-        }
-      },
-      te: {
-        translation: {
-          title: "సైన్‌బ్రిడ్జ్ AI",
-          person: "వ్యక్తి",
-          gesture: "సంజ్ఞ",
-          emotion: "భావోద్వేగం",
-          unknown: "తెలియదు",
-          none: "ఏదీ లేదు",
-          neutral: "తటస్థం",
-          analyticsTitle: "అనలిటిక్స్ డాష్‌బోర్డ్",
-          happy: "సంతోషం",
-          sad: "విచారం"
-        }
-      },
-      ta: {
-        translation: {
-          title: "சைன்பிரிட்ஜ் AI",
-          person: "நபர்",
-          gesture: "சைகை",
-          emotion: "உணர்ச்சி",
-          unknown: "தெரியாத",
-          none: "ஏதுமில்லை",
-          neutral: "நடுநிலை",
-          analyticsTitle: "பகுப்பாய்வு கட்டுப்பாட்டுப் பலகை",
-          happy: "மகிழ்ச்சி",
-          sad: "வருத்தம்"
-        }
-      },
-      kn: {
-        translation: {
-          title: "ಸೈನ್‌ಬ್ರಿಡ್ಜ್ AI",
-          person: "ವ್ಯಕ್ತಿ",
-          gesture: "ಸನ್ನೆ",
-          emotion: "ಭಾವನೆ",
-          unknown: "ತಿಳಿಯದ",
-          none: "ಯಾವುದು ಇಲ್ಲ",
-          neutral: "ತಟಸ್ಥ",
-          analyticsTitle: "ಅನಾಲಿಟಿಕ್ಸ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
-          happy: "ಸಂತೋಷ",
-          sad: "ದುಃಖ"
-        }
-      },
-      ml: {
-        translation: {
-          title: "സൈൻബ്രിഡ്ജ് AI",
-          person: "വ്യക്തി",
-          gesture: "ആംഗ്യം",
-          emotion: "വികാരം",
-          unknown: "അറിയപ്പെടാത്ത",
-          none: "ഒന്നുമില്ല",
-          neutral: "നിഷ്പക്ഷമായ",
-          analyticsTitle: "അനലിറ്റിക്സ് ഡാഷ്ബോർഡ്",
-          happy: "സന്തോഷം",
-          sad: "സങ്കടം"
-        }
-      },
-      tcy: {
-        translation: {
-          title: "ಸೈನ್‌ಬ್ರಿಡ್ಜ್ AI",
-          person: "ನರಮಾನಿ",
-          gesture: "ಸನ್ನೆ",
-          emotion: "ಭಾವನೆ",
-          unknown: "ತೆರಿಯಂದಿನ",
-          none: "ಒಂಜಿಲಾ ಇಜ್ಜಿ",
-          neutral: "ತಟಸ್ಥ",
-          analyticsTitle: "ಅನಾಲಿಟಿಕ್ಸ್ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್",
-          happy: "ಕುಸಿ",
-          sad: "ಬೇನೆ"
-        }
-      },
-      hi: {
-        translation: {
-          title: "साइनब्रिज AI",
-          person: "व्यक्ति",
-          gesture: "संकेत",
-          emotion: "भावना",
-          unknown: "अज्ञात",
-          none: "कोई नहीं",
-          neutral: "तटस्थ",
-          analyticsTitle: "एनालिटिक्स डैशबोर्ड",
-          happy: "खुश",
-          sad: "दुखी"
-        }
-      }
-    }
+    resources
   });
 
 export default i18n;
