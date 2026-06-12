@@ -24,12 +24,12 @@ def render_about_page(lang="en"):
         st.subheader(f"⌨️ {t('about.shortcutsTitle', lang)}")
         # Keyboard Shortcuts table
         shortcuts = [
-            {"Shortcut": "H / h", "Action": "Navigate to Home Page"},
-            {"Shortcut": "L / l", "Action": "Navigate to Live Translation Page"},
-            {"Shortcut": "C / c", "Action": "Navigate to Conversations Log History"},
-            {"Shortcut": "P / p", "Action": "Navigate to Known People Profiles"},
-            {"Shortcut": "S / s", "Action": "Navigate to System Configuration Settings"},
-            {"Shortcut": "A / a", "Action": "Navigate to About SignBridge AI"}
+            {"Shortcut": "H / h", "Action": f"Go to {t('nav.home', lang)}"},
+            {"Shortcut": "L / l", "Action": f"Go to {t('nav.live', lang)}"},
+            {"Shortcut": "C / c", "Action": f"Go to {t('nav.conversations', lang)}"},
+            {"Shortcut": "P / p", "Action": f"Go to {t('nav.people', lang)}"},
+            {"Shortcut": "S / s", "Action": f"Go to {t('nav.settings', lang)}"},
+            {"Shortcut": "A / a", "Action": f"Go to {t('nav.about', lang)}"}
         ]
         st.table(shortcuts)
         

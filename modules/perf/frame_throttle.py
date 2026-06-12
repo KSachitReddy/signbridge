@@ -92,6 +92,30 @@ class FrameThrottle:
         self.interval = max(1, interval)
 
 
+class TimeThrottle:
+    """
+    Returns True when `interval_seconds` have elapsed since the last execution.
+    Allows for time-based throttling of heavy inference functions, independent of loop frame rates.
+    """
+
+    def __init__(self, interval_seconds: float = 1.0):
+        self.interval = float(interval_seconds)
+        self.last_run = 0.0
+
+    def should_run(self) -> bool:
+        now = time.time()
+        if now - self.last_run >= self.interval:
+            self.last_run = now
+            return True
+        return False
+
+    def reset(self):
+        self.last_run = 0.0
+
+    def set_interval(self, interval_seconds: float):
+        self.interval = float(interval_seconds)
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # CentroidTracker
 # ─────────────────────────────────────────────────────────────────────────────

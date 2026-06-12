@@ -115,6 +115,46 @@ elif theme_mode == "Large Text Mode":
 
 st.markdown(css_style, unsafe_allow_html=True)
 
+# Inject accessibility keyboard shortcuts listener
+st.html("""
+<script>
+    const parentDoc = window.parent.document;
+    if (!parentDoc._shortcut_listener_added) {
+        parentDoc._shortcut_listener_added = true;
+        parentDoc.addEventListener('keydown', (e) => {
+            const active = parentDoc.activeElement;
+            if (active && (
+                active.tagName === 'INPUT' || 
+                active.tagName === 'TEXTAREA' || 
+                active.isContentEditable ||
+                active.closest('input') ||
+                active.closest('textarea')
+            )) {
+                return;
+            }
+            const key = e.key.toLowerCase();
+            let index = -1;
+            if (key === 'h') index = 0;
+            else if (key === 'l') index = 1;
+            else if (key === 'c') index = 2;
+            else if (key === 'p') index = 3;
+            else if (key === 's') index = 4;
+            else if (key === 'a') index = 5;
+            
+            if (index !== -1) {
+                const radioContainer = parentDoc.querySelector('div[role="radiogroup"]');
+                if (radioContainer) {
+                    const labels = radioContainer.querySelectorAll('label');
+                    if (labels && labels.length > index) {
+                        labels[index].click();
+                    }
+                }
+            }
+        });
+    }
+</script>
+""")
+
 # 4. Define pages and navigation mappings
 pages = {
     "Home": render_home_page,

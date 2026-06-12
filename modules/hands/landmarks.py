@@ -85,14 +85,15 @@ def _draw_hand(frame, landmarks_px, color_joint, color_conn):
         cv2.circle(frame, landmarks_px[0], 6, color_joint, -1)
 
 
-def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
+def track_and_draw_hands(frame, use_mock=False, rgb_frame=None, draw_skeleton=True):
     """
     Detects hands using MediaPipe HandLandmarker and draws skeleton on frame.
 
     Args:
-        frame:     BGR image (numpy array) — drawn on in-place.
-        use_mock:  If True, use synthetic hand positions.
-        rgb_frame: Pre-converted RGB array. When provided, skips an extra cvtColor call.
+        frame:         BGR image (numpy array) — drawn on in-place.
+        use_mock:      If True, use synthetic hand positions.
+        rgb_frame:     Pre-converted RGB array. When provided, skips an extra cvtColor call.
+        draw_skeleton: If True, draw hand joints and connection lines.
     Returns: ({"left": [...], "right": [...]}, annotated frame)
     Each hand is a list of 21 dicts with x, y, z keys (normalized 0-1).
     """
@@ -134,11 +135,12 @@ def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
                     hands_data[f"{side}_conf"] = hand_conf
 
                     # Draw
-                    px = [(int(lm.x * w), int(lm.y * h)) for lm in landmarks]
-                    if side == "left":
-                        _draw_hand(frame, px, (0, 140, 255), (255, 220, 0))
-                    else:
-                        _draw_hand(frame, px, (0, 200, 255), (0, 255, 200))
+                    if draw_skeleton:
+                        px = [(int(lm.x * w), int(lm.y * h)) for lm in landmarks]
+                        if side == "left":
+                            _draw_hand(frame, px, (0, 140, 255), (255, 220, 0))
+                        else:
+                            _draw_hand(frame, px, (0, 200, 255), (0, 255, 200))
 
                 return hands_data, frame
 
@@ -171,9 +173,10 @@ def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
 
         hands_data[side] = lm_list
         hands_data[f"{side}_conf"] = 0.95
-        px = [(int(lm["x"] * w), int(lm["y"] * h)) for lm in lm_list]
-        color_j = (0, 140, 255) if side == "left" else (0, 200, 255)
-        color_c = (255, 220, 0) if side == "left" else (0, 255, 200)
-        _draw_hand(frame, px, color_j, color_c)
+        if draw_skeleton:
+            px = [(int(lm["x"] * w), int(lm["y"] * h)) for lm in lm_list]
+            color_j = (0, 140, 255) if side == "left" else (0, 200, 255)
+            color_c = (255, 220, 0) if side == "left" else (0, 255, 200)
+            _draw_hand(frame, px, color_j, color_c)
 
     return hands_data, frame

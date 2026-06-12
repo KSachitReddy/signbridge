@@ -175,38 +175,49 @@ def estimate_face_orientation(landmarks):
         return "Front"
 
 
-def _draw_detailed_face_mesh(frame, face_landmarks, color=(0, 255, 200)):
+def _draw_detailed_face_mesh(frame, face_landmarks, color=(0, 255, 200), show_mesh: bool = True, show_ids: bool = False):
     """Draws 468 landmarks as small dots and lines connecting primary contours."""
+    if not show_mesh and not show_ids:
+        return
+
     h, w = frame.shape[:2]
     
-    # 1. Draw all 468 points as tiny dots
-    for lm in face_landmarks[:468]:
-        cx, cy = int(lm.x * w), int(lm.y * h)
-        cv2.circle(frame, (cx, cy), 1, color, -1)
+    # 1. Draw points as tiny dots if show_mesh is enabled
+    if show_mesh:
+        for lm in face_landmarks[:468]:
+            cx, cy = int(lm.x * w), int(lm.y * h)
+            cv2.circle(frame, (cx, cy), 1, color, -1)
 
-    # 2. Draw connections for the entire face mesh
-    from mediapipe.tasks.python.vision.face_landmarker import FaceLandmarksConnections
+    # Draw numerical ID labels next to each landmark coordinate if show_ids is enabled
+    if show_ids:
+        for idx, lm in enumerate(face_landmarks[:468]):
+            cx, cy = int(lm.x * w), int(lm.y * h)
+            cv2.putText(frame, str(idx), (cx, cy), cv2.FONT_HERSHEY_SIMPLEX, 0.22, (0, 255, 200), 1, cv2.LINE_AA)
 
-    # Draw face tesselation
-    for conn in FaceLandmarksConnections.FACE_LANDMARKS_TESSELATION:
-        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
-            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
-            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
-            cv2.line(frame, pt1, pt2, color, 1)
+    # 2. Draw connections for the entire face mesh if show_mesh is enabled
+    if show_mesh:
+        from mediapipe.tasks.python.vision.face_landmarker import FaceLandmarksConnections
 
-    # Draw face contours (jawline, lips, nose, eyes, eyebrows)
-    for conn in FaceLandmarksConnections.FACE_LANDMARKS_CONTOURS:
-        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
-            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
-            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
-            cv2.line(frame, pt1, pt2, color, 1)
+        # Draw face tesselation
+        for conn in FaceLandmarksConnections.FACE_LANDMARKS_TESSELATION:
+            if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+                pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+                pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+                cv2.line(frame, pt1, pt2, color, 1)
 
-    # Draw irises
-    for conn in list(FaceLandmarksConnections.FACE_LANDMARKS_LEFT_IRIS) + list(FaceLandmarksConnections.FACE_LANDMARKS_RIGHT_IRIS):
-        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
-            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
-            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
-            cv2.line(frame, pt1, pt2, (255, 0, 0), 1)
+        # Draw face contours (jawline, lips, nose, eyes, eyebrows)
+        for conn in FaceLandmarksConnections.FACE_LANDMARKS_CONTOURS:
+            if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+                pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+                pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+                cv2.line(frame, pt1, pt2, color, 1)
+
+        # Draw irises
+        for conn in list(FaceLandmarksConnections.FACE_LANDMARKS_LEFT_IRIS) + list(FaceLandmarksConnections.FACE_LANDMARKS_RIGHT_IRIS):
+            if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+                pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+                pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+                cv2.line(frame, pt1, pt2, (255, 0, 0), 1)
 
 
 def validate_and_enroll_face(frame, name, notes=""):
@@ -386,15 +397,18 @@ def classify_expression(landmarks) -> tuple:
         return "Neutral", 1.0
 
 
-def recognize_multiple_faces(frame, run_mesh: bool = True):
+def recognize_multiple_faces(frame, run_mesh: bool = True, show_mesh: bool = True, show_ids: bool = False, show_bbox: bool = True, run_recognition: bool = True):
     """
     Detects and identifies all faces using InsightFace.
     Optionally renders 468-point Face Mesh via MediaPipe FaceLandmarker.
 
     Args:
-        frame:    BGR image (numpy array)
-        run_mesh: If True, run MediaPipe FaceLandmarker for detailed mesh overlay.
-                  Set False in Performance/Balanced modes for significant speedup.
+        frame:           BGR image (numpy array)
+        run_mesh:        If True, run MediaPipe FaceLandmarker for detailed mesh overlay.
+        show_mesh:       If True, draw connections.
+        show_ids:        If True, draw landmark index text.
+        show_bbox:       If True, draw bounding boxes on frame.
+        run_recognition: If True, run InsightFace face recognition embedding comparison.
     Returns: (list of result dicts, annotated frame)
     """
     h, w = frame.shape[:2]
@@ -412,7 +426,7 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
                 mp_result = landmarker.detect(mp_image)
                 if mp_result.face_landmarks:
                     for face_lm in mp_result.face_landmarks:
-                        _draw_detailed_face_mesh(frame, face_lm, color=(0, 255, 200))
+                        _draw_detailed_face_mesh(frame, face_lm, color=(0, 255, 200), show_mesh=show_mesh, show_ids=show_ids)
                         xs = [lm.x * w for lm in face_lm]
                         ys = [lm.y * h for lm in face_lm]
                         centroid = (sum(xs)/len(xs), sum(ys)/len(ys))
@@ -420,7 +434,32 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
             except Exception as e:
                 print(f"[FaceLandmarker] Mesh rendering error: {e}")
 
-    # 2. Face Recognition (InsightFace w600k_mbf)
+    # 2. Skip recognition if run_recognition is False
+    if not run_recognition:
+        for (cx, cy), lm in mp_centroids:
+            xs = [l.x * w for l in lm]
+            ys = [l.y * h for l in lm]
+            x1, x2 = int(min(xs)), int(max(xs))
+            y1, y2 = int(min(ys)), int(max(ys))
+            bw, bh = x2 - x1, y2 - y1
+            
+            orientation = estimate_face_orientation(lm)
+            expression, expression_conf = classify_expression(lm)
+            
+            results_list.append({
+                "person_id": "Unknown",
+                "name": "Unknown Person",
+                "confidence": 0.0,
+                "match_status": "Unknown Person",
+                "expression": expression,
+                "expression_confidence": expression_conf,
+                "box": [x1, y1, bw, bh],
+                "embedding": None,
+                "orientation": orientation
+            })
+        return results_list, frame
+
+    # 3. Face Recognition (InsightFace w600k_mbf)
     app = _get_insightface_app()
     if app is None or app == "FAILED":
         return results_list, frame
@@ -432,9 +471,6 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
     from modules.perf.db_cache import get_cached_face_centroids, get_cached_people
     centroids = get_cached_face_centroids()
     people_map = {p["id"]: p["name"] for p in get_cached_people()}
-
-    # Multi-threshold settings
-    THRESHOLD_KNOWN = 0.68
 
     for i, face in enumerate(faces):
         x1, y1, x2, y2 = face.bbox.astype(int)
@@ -457,11 +493,8 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
                 expression, expression_conf = classify_expression(lm)
                 break
 
-        best_name = "Unknown Person"
-        best_id = "Unknown"
-        best_sim = 0.0
-
-        # Pre-normalize query vector once; use dot product against pre-normalized DB vectors
+        # Compute matches for margin verification
+        matches = []
         q_arr = np.array(embedding, dtype=np.float32)
         q_norm = float(np.linalg.norm(q_arr))
         if q_norm > 1e-8:
@@ -469,33 +502,70 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
 
         for pid, centroid in centroids.items():
             sim = float(np.dot(q_arr, centroid))
-            if sim > best_sim:
-                best_sim = sim
-                best_id = pid
+            matches.append((pid, sim))
 
-        # Decision making logic: below threshold remains Unknown.
-        if best_sim >= THRESHOLD_KNOWN:
-            best_name = people_map.get(best_id, "Unknown Person")
-            update_last_seen(best_id)
-            label = f"{best_name} ({int(best_sim * 100)}%)"
-            box_color = (0, 220, 160) # Green
-        else:
-            best_id = "Unknown"
-            best_name = "Unknown Person"
+        matches = sorted(matches, key=lambda x: x[1], reverse=True)
+
+        best_name = "Unknown Person"
+        best_id = "Unknown"
+        best_sim = 0.0
+        match_status = "Unknown Person"
+
+        if matches:
+            top_id, top_sim = matches[0]
+            second_sim = matches[1][1] if len(matches) > 1 else 0.0
+            margin = top_sim - second_sim
+
+            # Margin Check Rule: if top minus second < 10% (0.10), match is considered ambiguous
+            if len(matches) > 1 and margin < 0.10:
+                best_id = "Unknown"
+                best_name = "Unknown Person"
+                best_sim = top_sim
+                match_status = "Unknown Person"
+            else:
+                # Recognition thresholds
+                if top_sim < 0.50:
+                    best_id = "Unknown"
+                    best_name = "Unknown Person"
+                    best_sim = top_sim
+                    match_status = "Unknown Person"
+                elif 0.50 <= top_sim < 0.70:
+                    best_id = top_id
+                    best_name = people_map.get(top_id, "Unknown Person")
+                    best_sim = top_sim
+                    match_status = "Weak Match"
+                elif 0.70 <= top_sim < 0.85:
+                    best_id = top_id
+                    best_name = people_map.get(top_id, "Unknown Person")
+                    best_sim = top_sim
+                    match_status = "Recognized"
+                else:  # top_sim >= 0.85
+                    best_id = top_id
+                    best_name = people_map.get(top_id, "Unknown Person")
+                    best_sim = top_sim
+                    match_status = "Strong Match"
+
+        if best_name == "Unknown Person":
             label = "Unknown Person"
             box_color = (0, 50, 255) # Red
+        else:
+            update_last_seen(best_id)
+            label = f"{best_name} ({match_status} - {int(best_sim * 100)}%)"
+            box_color = (0, 220, 160) # Green
 
-        # Draw bounding boxes and text overlays
-        cv2.rectangle(frame, (x1, y1), (x2, y2), box_color, 2)
-        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-        cv2.rectangle(frame, (x1, y1 - th - 8), (x1 + tw + 4, y1), box_color, -1)
-        cv2.putText(frame, label, (x1 + 2, y1 - 4),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        # Draw bounding boxes and text overlays if enabled
+        if show_bbox:
+            cv2.rectangle(frame, (x1, y1), (x2, y2), box_color, 2)
+            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+            cv2.rectangle(frame, (x1, y1 - th - 8), (x1 + tw + 4, y1), box_color, -1)
+            cv2.putText(frame, label, (x1 + 2, y1 - 4),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
 
         results_list.append({
             "person_id": best_id,
             "name": best_name,
             "confidence": float(best_sim),
+            "match_status": match_status,
             "expression": expression,
             "expression_confidence": expression_conf,
             "box": [x1, y1, bw, bh],

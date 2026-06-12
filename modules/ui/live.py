@@ -42,7 +42,7 @@ from modules.database import (
     add_face_vector,
     get_all_face_vectors,
 )
-from modules.perf import FrameThrottle, CentroidTracker, PERF_MODES
+from modules.perf import FrameThrottle, TimeThrottle, CentroidTracker, AsyncWorker, PERF_MODES
 from modules.perf.db_cache import invalidate_face_cache
 
 
@@ -68,15 +68,19 @@ def _init_state():
         # Performance engine
         "perf_mode":          "⚖️ Balanced",
         "face_throttle":      None,
+        "expr_throttle":      None,
         "sign_throttle":      None,
         "centroid_tracker":   None,
         "_face_cache":        [],
         "_sign_cache":        [("None", 1.0), ("None", 0.0), ("None", 0.0)],
         "_last_perf_mode":    "",
+        "face_worker":        None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
+    if "face_worker" not in st.session_state or st.session_state.face_worker is None:
+        st.session_state.face_worker = AsyncWorker(max_workers=1)
 
 
 def _ensure_throttles(mode_cfg: dict, mode_name: str):
@@ -84,7 +88,15 @@ def _ensure_throttles(mode_cfg: dict, mode_name: str):
     if st.session_state._last_perf_mode == mode_name:
         return
     st.session_state._last_perf_mode = mode_name
-    st.session_state.face_throttle = FrameThrottle(mode_cfg["face_recog_interval"])
+    
+    # Time-based throttle for face recognition: Performance=1.5s, Balanced=1.0s, Accuracy=0.5s
+    face_int = 1.5 if "Performance" in mode_name else 1.0 if "Balanced" in mode_name else 0.5
+    st.session_state.face_throttle = TimeThrottle(face_int)
+    
+    # Time-based throttle for expressions: Performance=1.0s, Balanced/Accuracy=0.5s
+    expr_int = 1.0 if "Performance" in mode_name else 0.5
+    st.session_state.expr_throttle = TimeThrottle(expr_int)
+    
     st.session_state.sign_throttle = FrameThrottle(mode_cfg["sign_interval"])
     if st.session_state.centroid_tracker is None:
         st.session_state.centroid_tracker = CentroidTracker(max_disappeared=30)
@@ -92,6 +104,8 @@ def _ensure_throttles(mode_cfg: dict, mode_name: str):
         st.session_state.centroid_tracker.clear()
     # Hot-swap InsightFace det_size
     reinit_insightface(det_size=mode_cfg["det_size"])
+    
+    st.session_state.show_mesh = mode_cfg["use_face_mesh"]
 
 
 def _average_embeddings(embeddings_list):
@@ -198,6 +212,12 @@ def render_live_page(lang="en"):
             f"Inference res: **{mode_cfg['infer_w']}×{mode_cfg['infer_h']}**  \n"
             f"FaceMesh: **{'✅ On' if mode_cfg['use_face_mesh'] else '❌ Off'}**"
         )
+
+        st.markdown("### 🛠️ Display Overlays")
+        show_mesh = st.checkbox("Show Face Mesh", value=st.session_state.get("show_mesh", mode_cfg["use_face_mesh"]), key="show_mesh")
+        show_ids = st.checkbox("Show Landmark IDs", value=False, key="show_ids")
+        show_bbox = st.checkbox("Show Face Bounding Box", value=True, key="show_bbox")
+        show_hands = st.checkbox("Show Hand Skeleton", value=True, key="show_hands")
 
         st.markdown("---")
 
@@ -333,33 +353,104 @@ def render_live_page(lang="en"):
                 pose_joints, infer_frame = track_and_draw_pose(
                     infer_frame, rgb_frame=rgb_frame)
                 hands_data, infer_frame = track_and_draw_hands(
-                    infer_frame, rgb_frame=rgb_frame)
+                    infer_frame, rgb_frame=rgb_frame, draw_skeleton=show_hands)
 
-                # ── 4. Face Recognition (throttled) ──────────────────────
-                if face_throttle.should_run():
+                # ── 4. Face Recognition (throttled & async) ──────────────
+                face_worker = st.session_state.face_worker
+                async_res = face_worker.get_result()
+                if async_res is not None:
+                    faces_results = async_res
+                    faces_results = tracker.update(faces_results)
+                    face_cache = faces_results
+
+                # If enrollment is active, we run synchronously
+                if st.session_state.get("enroll_active", False):
                     faces_results, infer_frame = recognize_multiple_faces(
-                        infer_frame, run_mesh=use_mesh)
+                        infer_frame,
+                        run_mesh=True,
+                        show_mesh=show_mesh,
+                        show_ids=show_ids,
+                        show_bbox=show_bbox,
+                        run_recognition=True
+                    )
                     faces_results = tracker.update(faces_results)
                     face_cache = faces_results
                 else:
-                    # Reuse cached identity; redraw cached boxes on frame
-                    faces_results = face_cache
-                    for f in faces_results:
-                        x, y, w_b, h_b = f["box"]
-                        name = f.get("name", "Unknown Person")
-                        conf = f.get("confidence", 0.0)
-                        sim_pct = int(conf * 100)
-                        if name == "Unknown Person":
-                            color = (0, 50, 255)
-                            label = "Unknown Person"
-                        else:
-                            color = (0, 220, 160)
-                            label = f"{name} ({sim_pct}%)"
-                        cv2.rectangle(infer_frame, (x, y), (x + w_b, y + h_b), color, 2)
-                        (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-                        cv2.rectangle(infer_frame, (x, y - th - 8), (x + tw + 4, y), color, -1)
-                        cv2.putText(infer_frame, label, (x + 2, y - 4),
-                                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+                    # Run Face mesh and expression/orientation detection on main thread (fast)
+                    run_mesh_main = show_mesh or show_ids
+                    run_expr_main = st.session_state.expr_throttle.should_run()
+                    run_mesh_now = run_mesh_main or run_expr_main
+
+                    mesh_results = []
+                    if run_mesh_now:
+                        mesh_results, infer_frame = recognize_multiple_faces(
+                            infer_frame,
+                            run_mesh=True,
+                            show_mesh=show_mesh,
+                            show_ids=show_ids,
+                            show_bbox=False,
+                            run_recognition=False
+                        )
+
+                    # Submit heavy InsightFace recognition to background thread when throttled
+                    if face_throttle.should_run() and not face_worker.is_running():
+                        face_worker.submit(
+                            recognize_multiple_faces,
+                            infer_frame.copy(),
+                            run_mesh=False,
+                            show_mesh=False,
+                            show_ids=False,
+                            show_bbox=False,
+                            run_recognition=True
+                        )
+
+                    # Merge main-thread expression/orientation results into active face cached results
+                    faces_to_show = []
+                    for f in face_cache:
+                        f_show = f.copy()
+                        x1, y1, w_b, h_b = f_show["box"]
+                        cx_f = x1 + w_b / 2.0
+                        cy_f = y1 + h_b / 2.0
+                        
+                        matched_mesh = None
+                        min_dist = 99999.0
+                        for m in mesh_results:
+                            mx1, my1, mw, mh = m["box"]
+                            cx_m = mx1 + mw / 2.0
+                            cy_m = my1 + mh / 2.0
+                            dist = np.sqrt((cx_f - cx_m)**2 + (cy_f - cy_m)**2)
+                            if dist < min_dist and dist < 100.0:
+                                min_dist = dist
+                                matched_mesh = m
+                        
+                        if matched_mesh is not None:
+                            f_show["expression"] = matched_mesh["expression"]
+                            f_show["expression_confidence"] = matched_mesh["expression_confidence"]
+                            f_show["orientation"] = matched_mesh["orientation"]
+                            f_show["box"] = matched_mesh["box"]
+                        
+                        faces_to_show.append(f_show)
+                        
+                        # Draw bbox and name on frame if enabled
+                        if show_bbox:
+                            x, y, w_b, h_b = f_show["box"]
+                            name = f_show.get("name", "Unknown Person")
+                            conf = f_show.get("confidence", 0.0)
+                            match_status = f_show.get("match_status", "Unknown Person")
+                            sim_pct = int(conf * 100)
+                            if name == "Unknown Person":
+                                color = (0, 50, 255)
+                                label = "Unknown Person"
+                            else:
+                                color = (0, 220, 160)
+                                label = f"{name} ({match_status} - {sim_pct}%)"
+                            cv2.rectangle(infer_frame, (x, y), (x + w_b, y + h_b), color, 2)
+                            (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.45, 1)
+                            cv2.rectangle(infer_frame, (x, y - th - 8), (x + tw + 4, y), color, -1)
+                            cv2.putText(infer_frame, label, (x + 2, y - 4),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), 1, cv2.LINE_AA)
+
+                    faces_results = faces_to_show
 
                 # ── 5. Guided Enrollment Sample Capturing ─────────────────
                 if st.session_state.get("enroll_active", False) and faces_results:
@@ -399,7 +490,13 @@ def render_live_page(lang="en"):
                     detected_sign = NO_SIGN_LABEL
                     score = 0.0
 
-                translation_text = translate_sign(detected_sign, lang)
+                # Only run translate_sign when the predicted gesture label changes or translation cache is empty
+                if "last_detected_sign" not in st.session_state or detected_sign != st.session_state.last_detected_sign or not st.session_state.get("translation_text_cache"):
+                    st.session_state.last_detected_sign = detected_sign
+                    translation_text = translate_sign(detected_sign, lang)
+                    st.session_state.translation_text_cache = translation_text
+                else:
+                    translation_text = st.session_state.translation_text_cache
 
                 # ── 8. Log (throttled: 2s gap, 55% conf) ──────────────────
                 now_t = time.time()
@@ -411,7 +508,16 @@ def render_live_page(lang="en"):
                 )
                 if should_log:
                     person_id = faces_results[0]["person_id"] if faces_results else "Unknown"
-                    add_conversation(person_id, detected_sign, translation_text, lang, score)
+                    
+                    # Async daemon thread DB write
+                    import threading
+                    t_db = threading.Thread(
+                        target=add_conversation,
+                        args=(person_id, detected_sign, translation_text, lang, score),
+                        daemon=True
+                    )
+                    t_db.start()
+                    
                     st.session_state.last_logged_sign = detected_sign
                     st.session_state.last_sign_time = now_t
 
