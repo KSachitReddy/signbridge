@@ -57,7 +57,11 @@ function App() {
             </div>
           )}
         </div>
-        <AnalyticsDashboard logs={[{emotion: 'Happy'}, {emotion: 'Neutral'}]} />
+        <AnalyticsDashboard logs={[
+          {emotion: 'Happy'}, {emotion: 'Happy'}, 
+          {emotion: 'Neutral'}, {emotion: 'Neutral'}, {emotion: 'Neutral'},
+          {emotion: 'Sad'}
+        ]} />
       </main>
     </div>
   );
