@@ -54,6 +54,7 @@ function App() {
               <p>{t('gesture')}: {recognitionResult.gesture?.label || t('none')}</p>
               <p>{t('emotion')}: {recognitionResult.emotion?.emotion || t('neutral')}</p>
               <p>🌐 {i18n.language.toUpperCase()}</p>
+              <button className="copy-btn" title="Copy Translation">📋</button>
             </div>
           )}
         </div>
