@@ -1,0 +1,179 @@
+import streamlit as st
+from modules.locales import t
+from modules.database import get_setting, save_setting
+from modules.ui import (
+    render_home_page,
+    render_live_page,
+    render_conversations_page,
+    render_people_page,
+    render_settings_page,
+    render_about_page
+)
+from modules.signs import initialize_default_dataset_if_empty
+
+# Initialize database synthetic samples and train classifier if empty
+initialize_default_dataset_if_empty()
+
+# 1. Initialize settings from DB
+lang = get_setting("ui_language", "en")
+if "lang" not in st.session_state:
+    st.session_state.lang = lang
+else:
+    # Keep session state in sync with database if changed
+    st.session_state.lang = lang
+
+# Synchronize tab and page session states
+if "active_tab" in st.session_state and st.session_state.active_tab != st.session_state.get("active_page"):
+    st.session_state.active_page = st.session_state.active_tab
+elif "active_page" in st.session_state:
+    st.session_state.active_tab = st.session_state.active_page
+else:
+    st.session_state.active_page = "Home"
+    st.session_state.active_tab = "Home"
+
+# 2. Page Configuration
+st.set_page_config(
+    page_title="SignBridge AI",
+    page_icon="🤟",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# 3. Apply custom dark theme & accessibility stylesheets
+theme_mode = get_setting("visual_theme", "Standard Dark Theme")
+
+css_style = """
+<style>
+    .main {
+        background-color: #0F172A;
+        color: #F8FAFC;
+    }
+    .stButton>button {
+        background-color: #2563EB;
+        color: white;
+        border-radius: 8px;
+        border: none;
+        padding: 10px 24px;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    .stButton>button:hover {
+        background-color: #1D4ED8;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+    .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        border-radius: 16px;
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        transition: border-color 0.3s ease;
+    }
+    .glass-card:hover {
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+</style>
+"""
+
+if theme_mode == "High Contrast Dark Theme":
+    css_style += """
+    <style>
+        .main {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+        }
+        .glass-card {
+            background: #000000 !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 8px !important;
+        }
+        .stButton>button {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+            border: 2px solid #FFFFFF !important;
+            border-radius: 4px !important;
+        }
+    </style>
+    """
+elif theme_mode == "Large Text Mode":
+    css_style += """
+    <style>
+        body, p, button, span, label, select, input, table, td, th, h1, h2, h3, h4, h5, h6 {
+            font-size: 1.15rem !important;
+        }
+        h1 { font-size: 2.2rem !important; }
+        h2 { font-size: 1.8rem !important; }
+        h3 { font-size: 1.5rem !important; }
+        .stButton>button {
+            font-size: 1.15rem !important;
+        }
+    </style>
+    """
+
+st.markdown(css_style, unsafe_allow_html=True)
+
+# 4. Define pages and navigation mappings
+pages = {
+    "Home": render_home_page,
+    "Live Translation": render_live_page,
+    "Conversations": render_conversations_page,
+    "People": render_people_page,
+    "Settings": render_settings_page,
+    "About": render_about_page
+}
+
+# Translate nav labels dynamically
+nav_labels = {
+    "Home": t("nav.home", st.session_state.lang),
+    "Live Translation": t("nav.live", st.session_state.lang),
+    "Conversations": t("nav.conversations", st.session_state.lang),
+    "People": t("nav.people", st.session_state.lang),
+    "Settings": t("nav.settings", st.session_state.lang),
+    "About": t("nav.about", st.session_state.lang)
+}
+
+# Dynamic inverse mapping to translate page label to keys
+label_to_key = {v: k for k, v in nav_labels.items()}
+
+# 5. Sidebar Layout
+st.sidebar.title("🤟 SignBridge AI")
+st.sidebar.caption("ISL Accessibility Platform")
+
+# Target Quick Language Selector in Sidebar
+st.sidebar.markdown("---")
+sidebar_lang_title = "🌐 Target Language" if st.session_state.lang == "en" else "🌐 भाषा चुनें" if st.session_state.lang == "hi" else "🌐 భాష"
+selected_sidebar_lang = st.sidebar.selectbox(
+    sidebar_lang_title,
+    ["English", "Hindi", "Telugu"],
+    index=0 if st.session_state.lang == "en" else 1 if st.session_state.lang == "hi" else 2
+)
+sidebar_lang_code = "en" if selected_sidebar_lang == "English" else "hi" if selected_sidebar_lang == "Hindi" else "te"
+
+if sidebar_lang_code != st.session_state.lang:
+    save_setting("ui_language", sidebar_lang_code)
+    st.session_state.lang = sidebar_lang_code
+    st.rerun()
+
+st.sidebar.markdown("---")
+
+# Navigation radio list
+selected_label = st.sidebar.radio(
+    "Navigation" if st.session_state.lang == "en" else "नेविगेशन" if st.session_state.lang == "hi" else "నావిగేషన్",
+    list(nav_labels.values()),
+    index=list(nav_labels.keys()).index(st.session_state.active_page)
+)
+
+new_active_page = label_to_key[selected_label]
+if new_active_page != st.session_state.active_page:
+    st.session_state.active_page = new_active_page
+    st.session_state.active_tab = new_active_page
+    st.rerun()
+
+st.sidebar.markdown("---")
+st.sidebar.info("🇮🇳 Supported languages: English, Hindi, Telugu")
+
+# 6. Render Active View
+pages[st.session_state.active_page](lang=st.session_state.lang)

@@ -24,3 +24,24 @@ dist-ssr
 *.sw?
 
 .vercel
+ 
+# Python
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+ 
+# Databases and personal uploads
+database/
+coverage/
+ 
+# Large Models
+models/*.task
+models/*.caffemodel
+models/deploy.prototxt
