@@ -3,15 +3,12 @@ import { useTranslation } from 'react-i18next';
 import './App.css';
 import { useVideoStreaming } from './useVideoStreaming';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
+import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 function App() {
   const { t, i18n } = useTranslation();
   const { videoRef, canvasRef, recognitionResult } = useVideoStreaming();
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
-
-  const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-  };
 
   useEffect(() => {
     if (recognitionResult && overlayCanvasRef.current) {
@@ -39,15 +36,7 @@ function App() {
     <div className="app-container">
       <header className="header">
         <h1>{t('title')}</h1>
-        <div className="lang-switcher">
-          <button onClick={() => changeLanguage('en')}>EN</button>
-          <button onClick={() => changeLanguage('te')}>TE</button>
-          <button onClick={() => changeLanguage('hi')}>HI</button>
-          <button onClick={() => changeLanguage('ta')}>TA</button>
-          <button onClick={() => changeLanguage('kn')}>KN</button>
-          <button onClick={() => changeLanguage('ml')}>ML</button>
-          <button onClick={() => changeLanguage('tcy')}>TCY</button>
-        </div>
+        <LanguageSwitcher />
       </header>
       
       <main className="content">
