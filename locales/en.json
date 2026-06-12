@@ -28,7 +28,7 @@
     "cameraTitle": "📹 Live Camera Feed",
     "detailsTitle": "🔍 Recognition & Translation",
     "person": "Recognized Person",
-    "sign": "Recognized Sign",
+    "sign": "Gesture",
     "output": "Translated Output",
     "confidence": "Confidence Score",
     "language": "Current Language",

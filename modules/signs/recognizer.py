@@ -26,18 +26,14 @@ import pickle
 from modules.database import get_setting
 
 # ── Public constants ──────────────────────────────────────────────────────────
-NO_SIGN_LABEL = "No Sign Detected"
+NO_SIGN_LABEL = "No Gesture Detected"
 CONFIDENCE_THRESHOLD = 0.55          # below this the model is not confident enough
 HANDS_PRESENT_MIN_RATIO = 0.20       # need ≥20 % of buffer frames to have a hand
 
-# Vocabulary List (30 ISL signs — Phase 1)
+# Vocabulary List (10 gestures)
 VOCABULARY = [
-    "Hello", "Thank You", "Yes", "No", "Help",
-    "Water", "Food", "Mother", "Father", "Brother",
-    "Sister", "Friend", "School", "Teacher", "Hospital",
-    "Doctor", "Emergency", "Pain", "Medicine", "Bathroom",
-    "Home", "Eat", "Drink", "Sleep", "Stop",
-    "Come", "Go", "Good", "Bad", "Please"
+    "Thumbs Up", "Thumbs Down", "Point Left", "Point Right", "Point Up",
+    "Point Down", "Open Palm", "Closed Fist", "Hello", "Bye"
 ]
 
 
@@ -220,11 +216,7 @@ class TemporalSignClassifier:
     def predict(self, sequence_buffer: SignSequenceBuffer) -> list:
         """
         Returns top-3 (label, confidence) list.
-
-        Gates (in order, early-exit):
-          1. Empty buffer → NO_SIGN_LABEL
-          2. Too few frames with a hand detected → NO_SIGN_LABEL
-          3. RF probability below CONFIDENCE_THRESHOLD → NO_SIGN_LABEL
+        Uses a robust rule-based model utilizing active hand 21 landmarks.
         """
         buffer = sequence_buffer.buffer
         if not buffer:
@@ -237,84 +229,141 @@ class TemporalSignClassifier:
         if (right_count + left_count) / (2 * max(n, 1)) < HANDS_PRESENT_MIN_RATIO:
             return [(NO_SIGN_LABEL, 1.0), (NO_SIGN_LABEL, 0.0), (NO_SIGN_LABEL, 0.0)]
 
-        # Lazy reload
-        if self.clf is None:
-            self.load_model()
+        # 1. Classify each frame's active hand gesture
+        open_palm_count = 0
+        detected_static_list = []
+        
+        for f in buffer:
+            hand = f.get("right_hand", [])
+            if not (hand and len(hand) == 21):
+                hand = f.get("left_hand", [])
+            if hand and len(hand) == 21:
+                static_g = self._detect_static_gesture(hand)
+                detected_static_list.append(static_g)
+                if static_g == "Open Palm":
+                    open_palm_count += 1
+            else:
+                detected_static_list.append("None")
 
-        if self.clf is not None:
-            try:
-                features = extract_sequence_features(buffer, target_length=20).reshape(1, -1)
+        # Get active hand coordinates
+        x_coords = []
+        y_coords = []
+        for f in buffer:
+            hand = f.get("right_hand", [])
+            if not (hand and len(hand) == 21):
+                hand = f.get("left_hand", [])
+            if hand and len(hand) == 21:
+                x_coords.append(hand[0]["x"])
+                y_coords.append(hand[0]["y"])
 
-                # Gate 2: feature-size mismatch means stale model — force heuristic
-                if features.shape[1] != self.clf.n_features_in_:
-                    print(f"[Classifier] Feature mismatch "
-                          f"({features.shape[1]} vs {self.clf.n_features_in_}). "
-                          f"Model needs retraining.")
-                    self.clf = None
-                    return self._heuristic(buffer)
+        pred_label = NO_SIGN_LABEL
+        pred_conf = 0.0
 
-                probs  = self.clf.predict_proba(features)[0]
-                classes = self.clf.classes_
-                preds  = sorted(zip(classes, probs), key=lambda x: x[1], reverse=True)
+        # Check temporal Hello/Bye first if enough frames have an Open Palm
+        valid_frames_count = len(x_coords)
+        if valid_frames_count >= 6 and (open_palm_count / valid_frames_count) >= 0.30:
+            diffs = [x_coords[i] - x_coords[i-1] for i in range(1, valid_frames_count)]
+            sig_diffs = [d for d in diffs if abs(d) > 0.005]
+            
+            dir_changes = 0
+            last_sign = 0
+            for d in sig_diffs:
+                curr_sign = 1 if d > 0 else -1
+                if last_sign != 0 and curr_sign != last_sign:
+                    dir_changes += 1
+                last_sign = curr_sign
+                
+            total_path = sum(abs(d) for d in diffs)
+            displacement = x_coords[-1] - x_coords[0]
+            abs_disp = abs(displacement)
+            
+            if dir_changes >= 2 and total_path > 0.12:
+                pred_label = "Bye"
+                pred_conf = 0.90
+            elif dir_changes <= 1 and abs_disp > 0.08 and total_path < 1.6 * abs_disp:
+                pred_label = "Hello"
+                pred_conf = 0.85
 
-                while len(preds) < 3:
-                    preds.append((NO_SIGN_LABEL, 0.0))
-                return preds[:3]
+        # If no temporal gesture detected, find the most common static gesture
+        if pred_label == NO_SIGN_LABEL:
+            valid_static = [g for g in detected_static_list if g != "None"]
+            if valid_static:
+                from collections import Counter
+                counter = Counter(valid_static)
+                best_static, count = counter.most_common(1)[0]
+                ratio = count / len(detected_static_list)
+                if ratio >= 0.40:
+                    pred_label = best_static
+                    pred_conf = float(0.55 + 0.40 * ratio)  # 0.71 to 0.95
 
-            except Exception as e:
-                print(f"[Classifier] Prediction error: {e}")
-
-        return self._heuristic(buffer)
-
-    # ── private ───────────────────────────────────────────────────────────────
-
-    def _heuristic(self, buffer: list) -> list:
-        """
-        Velocity-based fallback when RF is unavailable.
-        Returns NO_SIGN_LABEL when motion is too low to identify.
-        """
-        left_ys, right_ys, right_xs = [], [], []
-        for frame in buffer:
-            rh = frame.get("right_hand", [])
-            lh = frame.get("left_hand", [])
-            if rh and len(rh) == 21:
-                right_ys.append(rh[0]["y"])
-                right_xs.append(rh[0]["x"])
-            if lh and len(lh) == 21:
-                left_ys.append(lh[0]["y"])
-
-        has_right = len(right_ys) >= 4
-        has_left  = len(left_ys)  >= 4
-
-        # If hands are present but barely moving → no sign
-        if has_right:
-            travel = abs(right_ys[-1] - right_ys[0]) + abs(right_xs[-1] - right_xs[0])
-            if travel < 0.04:
-                return [(NO_SIGN_LABEL, 0.95), (NO_SIGN_LABEL, 0.0), (NO_SIGN_LABEL, 0.0)]
-
-        right_up  = has_right and (right_ys[-1] < right_ys[0] - 0.05)
-        left_up   = has_left  and (left_ys[-1]  < left_ys[0]  - 0.05)
-        right_high = has_right and np.mean(right_ys) < 0.40
-        right_fwd  = has_right and len(right_xs) >= 4 and (right_xs[-1] > right_xs[0] + 0.05)
-
-        scores = {v: 0.01 for v in VOCABULARY}
-        if right_up and left_up:
-            scores["Help"] = 0.85; scores["Emergency"] = 0.70
-        elif right_high:
-            scores["Hello"] = 0.80; scores["Father"] = 0.65
-        elif right_up:
-            scores["Thank You"] = 0.75; scores["Good"] = 0.60
-        elif right_fwd:
-            scores["Stop"] = 0.78; scores["Go"] = 0.65
+        # Fill top 3 predictions
+        scores = {g: 0.0 for g in VOCABULARY}
+        if pred_label in scores:
+            scores[pred_label] = pred_conf
+            remaining = 1.0 - pred_conf
+            # Distribute remaining scores among next top static gestures
+            other_candidates = [g for g in VOCABULARY if g != pred_label]
+            for i, cand in enumerate(other_candidates[:2]):
+                scores[cand] = remaining * (0.6 if i == 0 else 0.4)
         else:
-            # Not enough motion to identify — return no-sign
-            return [(NO_SIGN_LABEL, 0.90), (NO_SIGN_LABEL, 0.0), (NO_SIGN_LABEL, 0.0)]
+            scores[NO_SIGN_LABEL] = 1.0
 
-        total = sum(scores.values())
-        for k in scores:
-            scores[k] /= total
-        preds = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:3]
-        return preds
+        preds = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        # If top label is NO_SIGN_LABEL, return it
+        if pred_label == NO_SIGN_LABEL:
+            return [(NO_SIGN_LABEL, 1.0), (NO_SIGN_LABEL, 0.0), (NO_SIGN_LABEL, 0.0)]
+        
+        return preds[:3]
+
+    def _detect_static_gesture(self, hand_lms) -> str:
+        if not hand_lms or len(hand_lms) < 21:
+            return "None"
+        
+        # Distance helper
+        def d(i1, i2):
+            p1 = hand_lms[i1]
+            p2 = hand_lms[i2]
+            return float(np.sqrt((p1["x"] - p2["x"])**2 + (p1["y"] - p2["y"])**2))
+
+        # Check four fingers: Index, Middle, Ring, Pinky
+        index_ext = d(8, 0) > d(6, 0)
+        middle_ext = d(12, 0) > d(10, 0)
+        ring_ext = d(16, 0) > d(14, 0)
+        pinky_ext = d(20, 0) > d(18, 0)
+
+        # Thumb extension: check distance from thumb tip (4) to index MCP (5)
+        # and thumb tip (4) to middle MCP (9).
+        thumb_ext = d(4, 9) > d(2, 9)
+
+        extensions = [thumb_ext, index_ext, middle_ext, ring_ext, pinky_ext]
+        num_extended = sum(extensions)
+
+        # 1. Closed Fist: all fingers folded
+        if num_extended <= 1 and not thumb_ext and not index_ext:
+            return "Closed Fist"
+        
+        # 2. Open Palm: all fingers extended
+        if num_extended >= 4:
+            return "Open Palm"
+
+        # 3. Thumbs Up / Down: only thumb extended
+        if thumb_ext and num_extended == 1:
+            # If tip y (4) is significantly higher than MCP y (2) (Y coordinate is smaller in image space)
+            if hand_lms[4]["y"] < hand_lms[2]["y"]:
+                return "Thumbs Up"
+            else:
+                return "Thumbs Down"
+
+        # 4. Point Up/Down/Left/Right: only index extended
+        if index_ext and not middle_ext and not ring_ext and not pinky_ext:
+            dx = hand_lms[8]["x"] - hand_lms[5]["x"]
+            dy = hand_lms[8]["y"] - hand_lms[5]["y"]
+            if abs(dx) > abs(dy):
+                return "Point Right" if dx > 0 else "Point Left"
+            else:
+                return "Point Down" if dy > 0 else "Point Up"
+
+        return "None"
 
 
 # Global singleton — loaded once at module import

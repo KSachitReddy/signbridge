@@ -184,25 +184,29 @@ def _draw_detailed_face_mesh(frame, face_landmarks, color=(0, 255, 200)):
         cx, cy = int(lm.x * w), int(lm.y * h)
         cv2.circle(frame, (cx, cy), 1, color, -1)
 
-    # 2. Draw connections for contours to construct mesh visual
-    contours = [
-        [33, 246, 161, 160, 159, 158, 157, 173, 133, 155, 154, 153, 145, 144, 163, 7, 33],  # Left Eye
-        [263, 466, 388, 387, 386, 385, 384, 398, 362, 382, 381, 380, 374, 373, 390, 249, 263],  # Right Eye
-        [61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291, 308, 324, 318, 402, 317, 14, 87, 178, 95, 61],  # Outer Lips
-        [70, 63, 105, 66, 107],  # Left Eyebrow
-        [300, 293, 334, 296, 336],  # Right Eyebrow
-        [168, 6, 197, 195, 5, 4],  # Nose details
-        [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109, 10]  # Jawline
-    ]
+    # 2. Draw connections for the entire face mesh
+    from mediapipe.tasks.python.vision.face_landmarker import FaceLandmarksConnections
 
-    for c in contours:
-        pts = []
-        for idx in c:
-            if idx < len(face_landmarks):
-                lm = face_landmarks[idx]
-                pts.append([int(lm.x * w), int(lm.y * h)])
-        if len(pts) > 1:
-            cv2.polylines(frame, [np.array(pts, dtype=np.int32)], isClosed=False, color=color, thickness=1)
+    # Draw face tesselation
+    for conn in FaceLandmarksConnections.FACE_LANDMARKS_TESSELATION:
+        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+            cv2.line(frame, pt1, pt2, color, 1)
+
+    # Draw face contours (jawline, lips, nose, eyes, eyebrows)
+    for conn in FaceLandmarksConnections.FACE_LANDMARKS_CONTOURS:
+        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+            cv2.line(frame, pt1, pt2, color, 1)
+
+    # Draw irises
+    for conn in list(FaceLandmarksConnections.FACE_LANDMARKS_LEFT_IRIS) + list(FaceLandmarksConnections.FACE_LANDMARKS_RIGHT_IRIS):
+        if conn.start < len(face_landmarks) and conn.end < len(face_landmarks):
+            pt1 = (int(face_landmarks[conn.start].x * w), int(face_landmarks[conn.start].y * h))
+            pt2 = (int(face_landmarks[conn.end].x * w), int(face_landmarks[conn.end].y * h))
+            cv2.line(frame, pt1, pt2, (255, 0, 0), 1)
 
 
 def validate_and_enroll_face(frame, name, notes=""):
@@ -286,19 +290,23 @@ def validate_and_enroll_face(frame, name, notes=""):
     }
 
 
-def classify_expression(landmarks) -> str:
+def classify_expression(landmarks) -> tuple:
     """
     Heuristically classifies facial expressions using MediaPipe FaceMesh landmarks.
     Supported: Neutral, Happy, Sad, Angry, Fear, Pain, Surprised.
+    Returns: (expression_label, confidence_score)
     """
     if len(landmarks) < 468:
-        return "Neutral"
+        return "Neutral", 1.0
 
     # 3D Euclidean distance helper
     def dist(i1, i2):
         p1 = landmarks[i1]
         p2 = landmarks[i2]
         return float(np.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2 + (p1.z - p2.z)**2))
+
+    def clip(val, min_val, max_val):
+        return max(min_val, min(val, max_val))
 
     try:
         # Reference scale metrics
@@ -332,23 +340,50 @@ def classify_expression(landmarks) -> str:
         right_eye_w = dist(263, 362)
         eye_ar = ((left_eye_h / max(left_eye_w, 1e-6)) + (right_eye_h / max(right_eye_w, 1e-6))) / 2.0
 
-        # Classification decision rules
-        if mar > 0.35 and brow_h > 0.085:
-            return "Surprised"
-        if smile_score > 0.012:
-            return "Happy"
-        if brow_squeeze < 0.17 and brow_h < 0.065:
-            return "Angry"
-        if brow_squeeze < 0.17 and eye_ar < 0.20:
-            return "Pain"
-        if brow_h > 0.08 and brow_squeeze < 0.18:
-            return "Fear"
-        if smile_score < -0.01 and brow_squeeze < 0.19:
-            return "Sad"
+        # Continuous activation scores:
+        # 1. Happy: smile_score ranges from 0.0 (neutral/flat) to 0.02+ (smile)
+        happy_act = clip(smile_score / 0.015, 0.0, 1.0)
+
+        # 2. Surprised: mar > 0.35 and raised eyebrows (brow_h > 0.075)
+        surprised_act = clip((mar - 0.1) / 0.3, 0.0, 1.0) * clip((brow_h - 0.07) / 0.02, 0.0, 1.0)
+
+        # Eyebrow furrow score: lower brow_squeeze means more furrowed.
+        # Typically brow_squeeze is around 0.20-0.22, drops to 0.16-0.18 when furrowed.
+        furrow_act = clip((0.21 - brow_squeeze) / 0.05, 0.0, 1.0)
+
+        # 3. Angry: furrowed eyebrows + lowered brow_h
+        angry_act = furrow_act * clip((0.08 - brow_h) / 0.02, 0.0, 1.0)
+
+        # 4. Pain: furrowed eyebrows + squinted/narrowed eyes (eye_ar < 0.22)
+        pain_act = furrow_act * clip((0.24 - eye_ar) / 0.08, 0.0, 1.0)
+
+        # 5. Fear: furrowed eyebrows + raised/normal eyebrows (brow_h > 0.065)
+        fear_act = furrow_act * clip((brow_h - 0.065) / 0.02, 0.0, 1.0)
+
+        # 6. Sad: frowning mouth (negative smile score) + furrowed eyebrows
+        sad_act = clip((-smile_score) / 0.01, 0.0, 1.0) * furrow_act
+
+        activations = {
+            "Happy": happy_act,
+            "Surprised": surprised_act,
+            "Angry": angry_act,
+            "Pain": pain_act,
+            "Fear": fear_act,
+            "Sad": sad_act
+        }
+
+        # Find the maximum activation
+        best_expr = max(activations, key=activations.get)
+        best_val = activations[best_expr]
+
+        if best_val >= 0.35:
+            return best_expr, float(best_val)
+        else:
+            return "Neutral", float(1.0 - best_val)
+
     except Exception as e:
         print(f"[FaceAI] Expression classification error: {e}")
-
-    return "Neutral"
+        return "Neutral", 1.0
 
 
 def recognize_multiple_faces(frame, run_mesh: bool = True):
@@ -415,10 +450,11 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
         # Spatial matching with MediaPipe centroids to get landmarks for orientation/expression
         orientation = "Front"
         expression = "Neutral"
+        expression_conf = 1.0
         for (cx, cy), lm in mp_centroids:
             if x1 <= cx <= x2 and y1 <= cy <= y2:
                 orientation = estimate_face_orientation(lm)
-                expression = classify_expression(lm)
+                expression, expression_conf = classify_expression(lm)
                 break
 
         best_name = "Unknown Person"
@@ -461,6 +497,7 @@ def recognize_multiple_faces(frame, run_mesh: bool = True):
             "name": best_name,
             "confidence": float(best_sim),
             "expression": expression,
+            "expression_confidence": expression_conf,
             "box": [x1, y1, bw, bh],
             "embedding": embedding,
             "orientation": orientation

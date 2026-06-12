@@ -97,7 +97,12 @@ def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
     Each hand is a list of 21 dicts with x, y, z keys (normalized 0-1).
     """
     h, w = frame.shape[:2]
-    hands_data = {"left": [], "right": []}
+    hands_data = {
+        "left": [],
+        "right": [],
+        "left_conf": 0.0,
+        "right_conf": 0.0
+    }
 
     landmarker = _get_hand_landmarker()
 
@@ -116,14 +121,17 @@ def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
                 for hand_idx, landmarks in enumerate(result.hand_landmarks):
                     # Determine handedness
                     side = "right"  # default
+                    hand_conf = 1.0
                     if result.handedness and hand_idx < len(result.handedness):
                         cat = result.handedness[hand_idx]
                         # MediaPipe handedness is from the camera's perspective (mirrored)
                         # "Right" in MediaPipe = user's left hand in mirror
                         side = "left" if cat[0].category_name == "Right" else "right"
+                        hand_conf = float(cat[0].score)
 
                     lm_list = [{"x": lm.x, "y": lm.y, "z": lm.z} for lm in landmarks]
                     hands_data[side] = lm_list
+                    hands_data[f"{side}_conf"] = hand_conf
 
                     # Draw
                     px = [(int(lm.x * w), int(lm.y * h)) for lm in landmarks]
@@ -162,6 +170,7 @@ def track_and_draw_hands(frame, use_mock=False, rgb_frame=None):
             lm_list = [{"x": wrist_x, "y": wrist_y, "z": 0.0}] * 21
 
         hands_data[side] = lm_list
+        hands_data[f"{side}_conf"] = 0.95
         px = [(int(lm["x"] * w), int(lm["y"] * h)) for lm in lm_list]
         color_j = (0, 140, 255) if side == "left" else (0, 200, 255)
         color_c = (255, 220, 0) if side == "left" else (0, 255, 200)

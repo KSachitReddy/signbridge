@@ -177,7 +177,7 @@ def run_validation():
                 pose={"left_shoulder": {"x": 0.4, "y": 0.4}, "right_shoulder": {"x": 0.6, "y": 0.4}}
             )
         preds = sign_classifier.predict(buf)
-        if len(preds) >= 3 and all(p[0] in VOCABULARY or p[0] in ("None", "No Sign Detected") for p in preds):
+        if len(preds) >= 3 and all(p[0] in VOCABULARY or p[0] in ("None", "No Sign Detected", "No Gesture Detected") for p in preds):
             results["Sign Recognition"] = "PASS"
             print(f"  -> Sign Recognition: PASS (Top: {preds[0][0]})")
         else:

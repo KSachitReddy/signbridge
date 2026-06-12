@@ -479,7 +479,8 @@ def render_live_page(lang="en"):
                     _render_info_panel(
                         info_placeholder,
                         faces_results, detected_sign, score,
-                        translation_text, top_preds, lang
+                        translation_text, top_preds, lang,
+                        hands_data=hands_data
                     )
                     _last_info_sign = detected_sign
 
@@ -500,15 +501,17 @@ def render_live_page(lang="en"):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _render_info_panel(info_pl, faces_results, detected_sign, score,
-                       translation_text, top_preds, lang):
+                       translation_text, top_preds, lang, hands_data=None):
     person_name = "Unknown Person"
     person_conf = 0.0
     expression = "Neutral"
+    expression_conf = 1.0
 
     if faces_results:
         person_name = faces_results[0]["name"]
         person_conf = faces_results[0]["confidence"]
         expression = faces_results[0]["expression"]
+        expression_conf = faces_results[0].get("expression_confidence", 1.0)
 
     # Face display string
     if person_name == "Unknown Person" or person_conf < 0.68:
@@ -516,13 +519,33 @@ def _render_info_panel(info_pl, faces_results, detected_sign, score,
     else:
         person_display = f"{person_name} ({int(person_conf * 100)}%)"
 
+    # Expression display string
+    expression_display = f"{expression} ({int(expression_conf * 100)}%)"
+
     # Sign display string & confidence
     if detected_sign == NO_SIGN_LABEL:
-        sign_display = "No Sign Detected"
+        sign_display = "No Gesture Detected"
         conf_display = "—"
     else:
         sign_display = detected_sign
         conf_display = f"{int(score * 100)}%"
+
+    # Hand presence/confidence display string
+    left_conf = 0.0
+    right_conf = 0.0
+    if hands_data and isinstance(hands_data, dict):
+        left_conf = hands_data.get("left_conf", 0.0)
+        right_conf = hands_data.get("right_conf", 0.0)
+
+    if left_conf > 0.4:
+        left_display = f"Detected ({int(left_conf * 100)}%)"
+    else:
+        left_display = "Not detected"
+
+    if right_conf > 0.4:
+        right_display = f"Detected ({int(right_conf * 100)}%)"
+    else:
+        right_display = "Not detected"
 
     with info_pl.container():
         st.markdown(f"""
@@ -534,7 +557,11 @@ def _render_info_panel(info_pl, faces_results, detected_sign, score,
             <h4 style="margin:0 0 10px 0;color:#F59E0B;">📈 {t('live.confidence', lang)}:
                 <span style="color:#FFF;">{conf_display}</span></h4>
             <h4 style="margin:0 0 10px 0;color:#EC4899;">🎭 {t('live.expressionContext', lang)}:
-                <span style="color:#FFF;">{expression}</span></h4>
+                <span style="color:#FFF;">{expression_display}</span></h4>
+            <h4 style="margin:0 0 10px 0;color:#E2E8F0;">👐 Left Hand:
+                <span style="color:#FFF;">{left_display}</span></h4>
+            <h4 style="margin:0 0 10px 0;color:#E2E8F0;">👐 Right Hand:
+                <span style="color:#FFF;">{right_display}</span></h4>
             <h4 style="margin:0 0 10px 0;color:#8B5CF6;">🌍 {t('live.language', lang)}:
                 <span style="color:#FFF;">{lang.upper()}</span></h4>
         </div>
@@ -578,6 +605,8 @@ def _render_static_widgets(info_pl, lang):
             <h4 style="margin:0 0 10px 0;color:#10B981;">🤟 {t('live.sign', lang)}: <span style="color:#FFF;">Awaiting stream...</span></h4>
             <h4 style="margin:0 0 10px 0;color:#F59E0B;">📈 {t('live.confidence', lang)}: <span style="color:#FFF;">—</span></h4>
             <h4 style="margin:0 0 10px 0;color:#EC4899;">🎭 {t('live.expressionContext', lang)}: <span style="color:#FFF;">—</span></h4>
+            <h4 style="margin:0 0 10px 0;color:#E2E8F0;">👐 Left Hand: <span style="color:#FFF;">—</span></h4>
+            <h4 style="margin:0 0 10px 0;color:#E2E8F0;">👐 Right Hand: <span style="color:#FFF;">—</span></h4>
         </div>
         """, unsafe_allow_html=True)
         st.info("Start the webcam stream to begin real-time sign recognition.")
