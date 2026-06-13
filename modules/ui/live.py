@@ -21,6 +21,7 @@ Unknown Face Workflow (NON-BLOCKING):
 """
 
 import streamlit as st
+import av
 import cv2
 import numpy as np
 import time
@@ -33,7 +34,7 @@ from typing import List
 
 import av
 from streamlit_webrtc import webrtc_streamer, WebRtcMode, RTCConfiguration
-
+from streamlit_webrtc import webrtc_streamer
 from modules.locales import t
 from modules.pose.holistic import track_and_draw_pose
 from modules.hands.landmarks import track_and_draw_hands
