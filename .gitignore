@@ -45,3 +45,6 @@ coverage/
 models/*.task
 models/*.caffemodel
 models/deploy.prototxt
+
+# Temporary log outputs
+*.txt
