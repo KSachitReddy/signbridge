@@ -287,13 +287,15 @@ def render_settings_page(lang="en"):
         # System Diagnostics Checklist
         st.markdown("#### 🛠️ Diagnostics Health Check")
         webcam_test = False
-        try:
-            cap = cv2.VideoCapture(0)
-            if cap.isOpened():
-                webcam_test = True
-                cap.release()
-        except Exception:
-            pass
+        # Do not attempt to initialize local webcam on headless cloud environments
+        if not os.environ.get("STREAMLIT_SHARING_MODE") and not os.environ.get("SPACE_ID"):
+            try:
+                cap = cv2.VideoCapture(0)
+                if cap.isOpened():
+                    webcam_test = True
+                    cap.release()
+            except Exception:
+                pass
             
         ollama_test = False
         try:
