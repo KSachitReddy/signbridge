@@ -39,21 +39,24 @@ class ObjectDetector:
         self.mp_detector = None
         
         # 1. Try to initialize MediaPipe Object Detector
-        try:
-            import mediapipe as mp
-            from mediapipe.tasks import python
-            from mediapipe.tasks.python import vision
-            
-            download_file(MP_MODEL_URL, MP_MODEL_PATH)
-            if os.path.exists(MP_MODEL_PATH):
-                base_options = python.BaseOptions(model_asset_path=MP_MODEL_PATH)
-                options = vision.ObjectDetectorOptions(base_options=base_options, score_threshold=0.5)
-                self.mp_detector = vision.ObjectDetector.create_from_options(options)
-                self.method = "mediapipe"
-                print("Initialized MediaPipe Object Detector successfully.")
-                return
-        except Exception as e:
-            print(f"MediaPipe Object Detector initialization skipped: {e}")
+        if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+            print("MediaPipe Object Detector skipped on Cloud environment.")
+        else:
+            try:
+                import mediapipe as mp
+                from mediapipe.tasks import python
+                from mediapipe.tasks.python import vision
+                
+                download_file(MP_MODEL_URL, MP_MODEL_PATH)
+                if os.path.exists(MP_MODEL_PATH):
+                    base_options = python.BaseOptions(model_asset_path=MP_MODEL_PATH)
+                    options = vision.ObjectDetectorOptions(base_options=base_options, score_threshold=0.5)
+                    self.mp_detector = vision.ObjectDetector.create_from_options(options)
+                    self.method = "mediapipe"
+                    print("Initialized MediaPipe Object Detector successfully.")
+                    return
+            except Exception as e:
+                print(f"MediaPipe Object Detector initialization skipped: {e}")
             
         # 2. Fallback to OpenCV DNN (MobileNet-SSD)
         try:
