@@ -1,2 +1,11 @@
-libgl1
-libglib2.0-0t64
+libgl1-mesa-glx
+libglib2.0-0
+build-essential
+pkg-config
+libavformat-dev
+libavcodec-dev
+libavdevice-dev
+libavutil-dev
+libswscale-dev
+libswresample-dev
+libavfilter-dev
