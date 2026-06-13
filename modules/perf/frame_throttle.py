@@ -31,6 +31,7 @@ PERF_MODES: Dict[str, Dict[str, Any]] = {
         "det_size":             (320, 320),
         "pose_conf":            0.4,
         "hand_conf":            0.4,
+        "pose_interval":        2,   # run PoseLandmarker every 2nd frame (~12ms avg saved)
     },
     "⚖️ Balanced": {
         # Default: full 468-pt face mesh ON, moderate resolution
@@ -42,6 +43,7 @@ PERF_MODES: Dict[str, Dict[str, Any]] = {
         "det_size":             (480, 480),
         "pose_conf":            0.5,
         "hand_conf":            0.5,
+        "pose_interval":        1,
     },
     "🎯 Accuracy": {
         # Highest quality: full mesh, full pose, both hands, highest resolution
@@ -53,6 +55,7 @@ PERF_MODES: Dict[str, Dict[str, Any]] = {
         "det_size":             (640, 640),
         "pose_conf":            0.5,
         "hand_conf":            0.5,
+        "pose_interval":        1,
     },
 }
 

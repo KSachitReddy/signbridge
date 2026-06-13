@@ -75,7 +75,6 @@ def _init_state():
         "_sign_cache":        [("None", 1.0), ("None", 0.0), ("None", 0.0)],
         "_last_perf_mode":    "",
         "face_worker":        None,
-        "last_expr_dict":     {},
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -222,26 +221,22 @@ def render_live_page(lang="en"):
         frame_placeholder = st.empty()
         enroll_placeholder = st.empty()
 
-        if st.session_state.get("enroll_active", False):
-            with enroll_placeholder.container():
-                st.markdown(f"""
-                <div class="glass-card" style="border-left: 5px solid #2563EB; padding: 16px; margin-bottom: 15px;">
-                    <h4 style="margin:0;color:#3B82F6;">👤 Guided Enrollment: Enrolling <b>{st.session_state.enroll_name}</b></h4>
-                    <p style="margin:5px 0 10px 0;color:#94A3B8;font-size:13px;">Rotate head slowly to capture views:</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                status_area = st.empty()
-                buttons_area = st.empty()
-                st.session_state.enroll_status_area = status_area
-                
-                with status_area.container():
+        # Render enrollment card OUTSIDE the camera loop to avoid duplicate element keys!
+        if run_cam:
+            if st.session_state.get("enroll_active", False):
+                with enroll_placeholder.container():
+                    st.markdown(f"""
+                    <div class="glass-card" style="border-left: 5px solid #2563EB; padding: 16px;">
+                        <h4 style="margin:0;color:#3B82F6;">👤 Guided Enrollment: Enrolling <b>{st.session_state.enroll_name}</b></h4>
+                        <p style="margin:5px 0 10px 0;color:#94A3B8;font-size:13px;">Rotate head slowly to capture views:</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
                     col_states = st.columns(5)
                     for idx, o in enumerate(["Front", "Left", "Right", "Up", "Down"]):
                         captured = "🟢" if st.session_state.enroll_samples.get(o) is not None else "🟡"
                         col_states[idx].markdown(f"<div style='text-align:center;font-size:12px;'>{captured}<br><b>{o}</b></div>", unsafe_allow_html=True)
-                    
-                with buttons_area.container():
+                        
                     col_save2, col_cancel = st.columns(2)
                     if col_save2.button("💾 Save Profile", use_container_width=True, key="inline_guided_save_btn"):
                         _complete_enrollment()
@@ -253,37 +248,42 @@ def render_live_page(lang="en"):
                         st.session_state.enroll_frame_snap = None
                         st.session_state.enroll_pending = False
                         st.session_state.unknown_notif_shown = False
-                        st.session_state.unknown_notif_ignored = False
                         st.rerun()
-        elif st.session_state.enroll_pending and not st.session_state.unknown_notif_ignored:
-            with enroll_placeholder.container():
-                st.markdown(f"""
-                <div class="glass-card" style="border-left: 5px solid #F59E0B; padding: 16px;">
-                    <h4 style="margin:0;color:#F59E0B;">👤 Unknown Person Detected</h4>
-                    <p style="margin:5px 0 10px 0;color:#94A3B8;font-size:13px;">Save profile now to identify them in the future.</p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                col_in, col_sv, col_ig = st.columns([3, 2, 2])
-                with col_in:
-                    name_input = st.text_input("Name", key="inline_enroll_name", placeholder="e.g. Rahul", label_visibility="collapsed")
-                with col_sv:
-                    if st.button("💾 Save", use_container_width=True, key="inline_save_btn"):
-                        if name_input.strip():
-                            st.session_state.enroll_name = name_input.strip()
-                            st.session_state.enroll_active = True
-                            st.session_state.enroll_samples = {
-                                "Front": None, "Left": None,
-                                "Right": None, "Up": None, "Down": None
-                            }
+            elif st.session_state.enroll_pending and not st.session_state.unknown_notif_ignored:
+                with enroll_placeholder.container():
+                    st.markdown(f"""
+                    <div class="glass-card" style="border-left: 5px solid #F59E0B; padding: 16px;">
+                        <h4 style="margin:0;color:#F59E0B;">👤 Unknown Person Detected</h4>
+                        <p style="margin:5px 0 10px 0;color:#94A3B8;font-size:13px;">Save profile now to identify them in the future.</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    col_in, col_sv, col_ig = st.columns([3, 2, 2])
+                    with col_in:
+                        name_input = st.text_input("Name", key="inline_enroll_name", placeholder="e.g. Rahul", label_visibility="collapsed")
+                    with col_sv:
+                        if st.button("💾 Save", use_container_width=True, key="inline_save_btn"):
+                            if name_input.strip():
+                                st.session_state.enroll_name = name_input.strip()
+                                st.session_state.enroll_active = True
+                                st.session_state.enroll_samples = {
+                                    "Front": None, "Left": None,
+                                    "Right": None, "Up": None, "Down": None
+                                }
+                                st.session_state.enroll_pending = False
+                                st.rerun()
+                    with col_ig:
+                        if st.button("✕ Ignore", use_container_width=True, key="inline_ignore_btn"):
+                            st.session_state.unknown_notif_ignored = True
                             st.session_state.enroll_pending = False
                             st.rerun()
-                with col_ig:
-                    if st.button("✕ Ignore", use_container_width=True, key="inline_ignore_btn"):
-                        st.session_state.unknown_notif_ignored = True
-                        st.session_state.enroll_pending = False
-                        st.rerun()
+            else:
+                enroll_placeholder.empty()
         else:
+            st.session_state.enroll_active = False
+            st.session_state.enroll_pending = False
+            st.session_state.unknown_notif_shown = False
+            st.session_state.unknown_notif_ignored = False
             enroll_placeholder.empty()
 
     with col_info:
@@ -410,7 +410,6 @@ def render_live_page(lang="en"):
 
                     # Merge main-thread expression/orientation results into active face cached results
                     faces_to_show = []
-                    last_expr_dict = st.session_state.last_expr_dict
                     for f in face_cache:
                         f_show = f.copy()
                         x1, y1, w_b, h_b = f_show["box"]
@@ -428,20 +427,11 @@ def render_live_page(lang="en"):
                                 min_dist = dist
                                 matched_mesh = m
                         
-                        tid = f_show.get("track_id")
                         if matched_mesh is not None:
                             f_show["expression"] = matched_mesh["expression"]
                             f_show["expression_confidence"] = matched_mesh["expression_confidence"]
                             f_show["orientation"] = matched_mesh["orientation"]
                             f_show["box"] = matched_mesh["box"]
-                            if tid is not None:
-                                last_expr_dict[tid] = (
-                                    matched_mesh["expression"],
-                                    matched_mesh["expression_confidence"],
-                                    matched_mesh["orientation"]
-                                )
-                        elif tid is not None and tid in last_expr_dict:
-                            f_show["expression"], f_show["expression_confidence"], f_show["orientation"] = last_expr_dict[tid]
                         
                         faces_to_show.append(f_show)
                         
@@ -477,14 +467,6 @@ def render_live_page(lang="en"):
                             # Keep a snapshot for profile photo
                             if st.session_state.enroll_frame_snap is None:
                                 st.session_state.enroll_frame_snap = infer_frame.copy()
-                            # Update status dots in real-time
-                            status_area = st.session_state.get("enroll_status_area")
-                            if status_area:
-                                with status_area.container():
-                                    col_states = st.columns(5)
-                                    for idx, o in enumerate(["Front", "Left", "Right", "Up", "Down"]):
-                                        captured = "🟢" if st.session_state.enroll_samples.get(o) is not None else "🟡"
-                                        col_states[idx].markdown(f"<div style='text-align:center;font-size:12px;'>{captured}<br><b>{o}</b></div>", unsafe_allow_html=True)
 
                     if all(st.session_state.enroll_samples.get(o) is not None
                            for o in ["Front", "Left", "Right", "Up", "Down"]):
@@ -553,6 +535,12 @@ def render_live_page(lang="en"):
                     st.session_state.unknown_notif_shown = True
                     st.session_state.enroll_frame_snap = infer_frame.copy()
                     state_changed = True
+                    
+                if not has_unknown and st.session_state.unknown_notif_shown and not st.session_state.get("enroll_active", False):
+                    st.session_state.unknown_notif_shown = False
+                    st.session_state.enroll_pending = False
+                    st.session_state.unknown_notif_ignored = False
+                    state_changed = True
 
                 if state_changed:
                     st.rerun()
@@ -572,15 +560,6 @@ def render_live_page(lang="en"):
                 fps_color = (0, 220, 100) if fps_display >= 10 else (0, 80, 255)
                 cv2.putText(display_frame, f"FPS: {fps_display}",
                             (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.65, fps_color, 2)
-
-                if st.session_state.enroll_pending:
-                    cv2.putText(display_frame, "Unknown Person - Save in sidebar",
-                                (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 165, 255), 2)
-
-                if st.session_state.get("enroll_active", False):
-                    cv2.putText(display_frame,
-                                f"Enrolling: {st.session_state.enroll_name} - Rotate Head",
-                                (10, 55), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 200), 2)
 
                 img_rgb_display = cv2.cvtColor(display_frame, cv2.COLOR_BGR2RGB)
                 ret_jpg, jpeg_buf = cv2.imencode(
@@ -656,24 +635,7 @@ def _render_info_panel(info_pl, faces_results, detected_sign, score,
     # 5. Current Translation
     current_translation = translation_text if translation_text else "Awaiting sign..."
 
-    # 6. Hand presence/confidence display string
-    left_conf = 0.0
-    right_conf = 0.0
-    if hands_data and isinstance(hands_data, dict):
-        left_conf = hands_data.get("left_conf", 0.0)
-        right_conf = hands_data.get("right_conf", 0.0)
-
-    if left_conf > 0.4:
-        left_display = f"Detected ({int(left_conf * 100)}%)"
-    else:
-        left_display = "Not detected"
-
-    if right_conf > 0.4:
-        right_display = f"Detected ({int(right_conf * 100)}%)"
-    else:
-        right_display = "Not detected"
-
-    # 7. Current Language
+    # 6. Current Language
     langs_map = {
         "en": "English",
         "hi": "Hindi (हिंदी)",
@@ -681,7 +643,7 @@ def _render_info_panel(info_pl, faces_results, detected_sign, score,
         "ta": "Tamil (தமிழ்)",
         "kn": "Kannada (ಕನ್ನಡ)",
         "ml": "Malayalam (മലയാളം)",
-        "tcy": "Tulu (तुळು)"
+        "tcy": "Tulu (तुळु)"
     }
     current_language = langs_map.get(lang, lang.upper())
 
@@ -711,16 +673,6 @@ def _render_info_panel(info_pl, faces_results, detected_sign, score,
             <div class="glass-card" style="padding: 18px; border-left: 5px solid #EC4899; margin-bottom: 0px;">
                 <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">🎭 Expression</p>
                 <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #F8FAFC; font-weight: 700;">{expression_display}</h3>
-            </div>
-            
-            <div class="glass-card" style="padding: 18px; border-left: 5px solid #E2E8F0; margin-bottom: 0px;">
-                <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">👐 Left Hand</p>
-                <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #F8FAFC; font-weight: 700;">{left_display}</h3>
-            </div>
-            
-            <div class="glass-card" style="padding: 18px; border-left: 5px solid #E2E8F0; margin-bottom: 0px;">
-                <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">👐 Right Hand</p>
-                <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #F8FAFC; font-weight: 700;">{right_display}</h3>
             </div>
             
             <div class="glass-card" style="padding: 18px; border-left: 5px solid #8B5CF6; margin-bottom: 0px;">
@@ -795,16 +747,6 @@ def _render_static_widgets(info_pl, lang):
             
             <div class="glass-card" style="padding: 18px; border-left: 5px solid #EC4899; margin-bottom: 0px;">
                 <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">🎭 Expression</p>
-                <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #94A3B8; font-weight: 700;">—</h3>
-            </div>
-            
-            <div class="glass-card" style="padding: 18px; border-left: 5px solid #E2E8F0; margin-bottom: 0px;">
-                <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">👐 Left Hand</p>
-                <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #94A3B8; font-weight: 700;">—</h3>
-            </div>
-            
-            <div class="glass-card" style="padding: 18px; border-left: 5px solid #E2E8F0; margin-bottom: 0px;">
-                <p style="margin: 0; font-size: 11px; color: #94A3B8; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">👐 Right Hand</p>
                 <h3 style="margin: 6px 0 0 0; font-size: 22px; color: #94A3B8; font-weight: 700;">—</h3>
             </div>
             

@@ -1,3 +1,14 @@
+---
+title: SignBridge AI
+emoji: 🤟
+colorFrom: blue
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.58.0
+app_file: streamlit_app.py
+pinned: false
+---
+
 # 🤟 SignBridge AI
 
 > **Sign. Connect. Belong.**  

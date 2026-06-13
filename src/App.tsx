@@ -7,7 +7,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 
 function App() {
   const { t, i18n } = useTranslation();
-  const { videoRef, canvasRef, recognitionResult } = useVideoStreaming();
+  const { videoRef, canvasRef, recognitionResult } = useVideoStreaming(i18n.language);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ function App() {
           {recognitionResult && (
             <div className="overlay">
               <p>{t('person')}: {recognitionResult.face?.results?.[0]?.identity || t('unknown')}</p>
-              <p>{t('gesture')}: {recognitionResult.gesture?.label || t('none')}</p>
+              <p>{t('gesture')}: {recognitionResult.gesture?.translated_text || recognitionResult.gesture?.label || t('none')}</p>
               <p>{t('emotion')}: {recognitionResult.emotion?.emotion || t('neutral')}</p>
               <p>🌐 {i18n.language.toUpperCase()}</p>
               <button className="copy-btn" title="Copy Translation">📋</button>

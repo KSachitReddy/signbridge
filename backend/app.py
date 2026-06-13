@@ -218,6 +218,40 @@ async def api_run_queries(person: str = None, gesture: str = None):
         filtered = [l for l in filtered if gesture.lower() in l["gesture"].lower()]
     return {"status": "success", "results": filtered}
 
+def get_translated_text(gesture_label, lang_code):
+    if not gesture_label or gesture_label in ("None", "No Sign Detected", "No Gesture Detected"):
+        return gesture_label
+    try:
+        from modules.translation.translator import translate_sign
+        res = translate_sign(gesture_label, lang_code)
+        if res:
+            return res
+    except Exception as e:
+        print(f"Translation module error: {e}")
+        
+    g = gesture_label.lower().strip()
+    l = lang_code.lower().strip()[:2]
+    if lang_code.lower().strip() == "tcy":
+        l = "tcy"
+        
+    local_map = {
+        "hi": {
+            "hello": "नमस्ते", "thank you": "धन्यवाद", "emergency": "आपातकालीन चेतावनी",
+            "person": "व्यक्ति", "bottle": "बोतल", "bye": "अलविदा", "thumbs up": "अंगूठा ऊपर (बहुत बढ़िया)",
+            "thumbs down": "अंगूठा नीचे (असहमत)", "point left": "बाईं ओर इशारा", "point right": "दाईं ओर इशारा",
+            "point up": "ऊपर की ओर इशारा", "point down": "नीचे की ओर इशारा", "open palm": "खुली हथेली", "closed fist": "बंद मुट्ठी"
+        },
+        "te": {
+            "hello": "నమస్కారం", "thank you": "ధన్యవాదాలు", "emergency": "అత్యవసర హెచ్చరిక",
+            "person": "వ్యక్తి", "bottle": "సీసా", "bye": "సెలవు / వీడ్కోలు", "thumbs up": "అభినందనలు (థంబ్స్ అప్)",
+            "thumbs down": "అసమ్మతి (థంబ్స్ డౌన్)", "point left": "ఎడమ వైపు చూపించు", "point right": "కుడి వైపు చూపించు",
+            "point up": "పైకి చూపించు", "point down": "క్రిందికి చూపించు", "open palm": "తెరచిన చేయి", "closed fist": "మూసివున్న పిడికిలి"
+        }
+    }
+    if l in local_map and g in local_map[l]:
+        return local_map[l][g]
+    return gesture_label
+
 # Socket.IO Event Handlers
 
 @sio.event
@@ -228,8 +262,14 @@ async def connect(sid, environ):
 async def frame(sid, data):
     """Processes a video frame received from the client."""
     try:
+        lang = "en"
+        frame_data = data
+        if isinstance(data, dict):
+            frame_data = data.get("frame")
+            lang = data.get("lang", "en")
+
         # Decode base64 frame
-        nparr = np.frombuffer(base64.b64decode(data.split(',')[1]), np.uint8)
+        nparr = np.frombuffer(base64.b64decode(frame_data.split(',')[1]), np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         if frame is None:
             return
@@ -247,12 +287,19 @@ async def frame(sid, data):
         person = face_result.get("results", [{}])[0].get("identity", "Unknown") if face_result.get("status") == "success" else "Unknown"
         emotion = emotion_result.get("emotion", "Neutral") if emotion_result.get("status") == "success" else "Neutral"
         
-        log_event_db(person=person, emotion=emotion, gesture=gesture_label, translated_text=gesture_label)
+        # Get translation
+        translated = get_translated_text(gesture_label, lang)
+        
+        log_event_db(person=person, emotion=emotion, gesture=gesture_label, translated_text=translated)
         
         # Send result back
         await sio.emit('recognition_result', {
             "face": face_result,
-            "gesture": {**gesture_result, "label": gesture_label},
+            "gesture": {
+                **gesture_result, 
+                "label": gesture_label,
+                "translated_text": translated
+            },
             "emotion": emotion_result
         }, to=sid)
     except Exception as e:

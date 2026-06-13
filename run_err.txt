@@ -1,0 +1,491 @@
+2026-06-12 23:49:21.543 Uvicorn server started on 0.0.0.0:8501
+c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\onnxruntime\capi\onnxruntime_inference_collection.py:149: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+W0000 00:00:1781288435.119282   25396 face_landmarker_graph.cc:180] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1781288435.344522   12808 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1781288435.406323   12808 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1781288436.574353    8852 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1781288436.691019   16312 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1781288437.197943   15680 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1781288437.565014   13484 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\onnxruntime\capi\onnxruntime_inference_collection.py:149: UserWarning: Specified provider 'CUDAExecutionProvider' is not in available provider names.Available providers: 'AzureExecutionProvider, CPUExecutionProvider'
+  warnings.warn(
+2026-06-12 23:51:07.356 The widget with key "show_mesh" was created with a default value but also had its value set via the Session State API.
+Stack (most recent call last):
+  File "C:\Users\sachi\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1030, in _bootstrap
+    self._bootstrap_inner()
+  File "C:\Users\sachi\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1073, in _bootstrap_inner
+    self.run()
+  File "C:\Users\sachi\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 1010, in run
+    self._target(*self._args, **self._kwargs)
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 419, in _run_script_thread
+    self._run_script(request.rerun_data)
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 814, in _run_script
+    ) = exec_func_with_error_handling(code_to_exec, ctx)
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\exec_code.py", line 129, in exec_func_with_error_handling
+    result = func()
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\runtime\scriptrunner\script_runner.py", line 789, in code_to_exec
+    exec(code, module.__dict__)  # noqa: S102
+  File "C:\Users\sachi\888\signbridge\streamlit_app.py", line 259, in <module>
+    pages[st.session_state.active_page](lang=st.session_state.lang)
+  File "C:\Users\sachi\888\signbridge\modules\ui\live.py", line 216, in render_live_page
+    show_mesh = st.checkbox("Show Face Mesh", value=st.session_state.get("show_mesh", mode_cfg["use_face_mesh"]), key="show_mesh")
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\runtime\metrics_util.py", line 698, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\elements\widgets\checkbox.py", line 201, in checkbox
+    return self._checkbox(
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\elements\widgets\checkbox.py", line 389, in _checkbox
+    check_widget_policies(
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\elements\lib\policies.py", line 187, in check_widget_policies
+    check_session_state_rules(
+  File "c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\streamlit\elements\lib\policies.py", line 92, in check_session_state_rules
+    _LOGGER.warning(
+W0000 00:00:1781288483.921798    7788 landmark_projection_calculator.cc:81] Using NORM_RECT without IMAGE_DIMENSIONS is only supported for the square ROI. Provide IMAGE_DIMENSIONS or use PROJECTION_MATRIX.
+2026-06-12 23:51:24.124 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:25.029 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:25.621 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:26.216 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:27.000 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:27.760 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:28.686 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:29.297 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:29.939 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+c:\Users\sachi\888\signbridge\.venv\Lib\site-packages\insightface\utils\face_align.py:23: FutureWarning: `estimate` is deprecated since version 0.26 and will be removed in version 2.2. Please use `SimilarityTransform.from_estimate` class constructor instead.
+  tform.estimate(lmk, dst)
+2026-06-12 23:51:41.929 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:54.956 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:55.534 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:56.192 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:56.884 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:57.681 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:58.610 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:51:59.384 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:00.129 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:00.911 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:01.492 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:02.099 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:02.647 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:03.234 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:03.887 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:04.917 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:05.408 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:06.028 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:06.672 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:07.281 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:07.863 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:08.418 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:08.977 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:09.576 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:10.209 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:10.787 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:11.343 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:11.922 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:12.540 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:13.110 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:13.666 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:14.282 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:14.797 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:15.383 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:15.941 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:16.535 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:28.243 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+E0000 00:00:1781288555.937106   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288555.938378   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+2026-06-12 23:52:44.226 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:44.832 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:45.434 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:46.176 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:46.876 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:52:57.775 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:12.432 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:13.249 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:13.813 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:14.279 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:14.785 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:15.230 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+2026-06-12 23:53:15.704 Please replace `use_container_width` with `width`.
+
+`use_container_width` will be removed after 2025-12-31.
+
+For `use_container_width=True`, use `width='stretch'`. For `use_container_width=False`, use `width='content'`.
+E0000 00:00:1781288615.950910   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288615.950912   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288617.108584   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288675.962833   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288675.963529   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288677.116158   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288736.022385   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288736.064439   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288737.303563   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288796.029411   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288796.075847   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288797.314498   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288856.042100   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288856.090479   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288857.444987   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288916.048574   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288916.105963   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288917.452853   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288976.089948   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288976.142181   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781288977.461903   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289036.101477   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289036.152317   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289037.470023   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289096.113424   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289096.175722   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289097.495310   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289156.127784   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289156.177342   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289157.510827   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289216.137345   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289216.186454   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289217.524334   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289276.144055   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289276.205520   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289277.526527   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289336.172067   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.912685+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289336.221100   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:36:35.927573768+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781289337.544364   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: FAILED_PRECONDITION: Not valid for uploading until: 2026-06-12T18:37:37.09497212+00:00
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/portable_clearcut_uploader.cc:180
+E0000 00:00:1781300193.890175   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 5, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781300193.939428   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 4, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781300195.518005   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 6, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781312032.830903   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 8, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781312032.837358   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 7, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781312035.458274   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 9, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781313089.593743   12052 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 10, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781313089.611935   18092 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 12, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44
+E0000 00:00:1781313089.610817   18184 portable_clearcut_uploader.cc:90] Failed to send to clearcut: INTERNAL: ResponseInfo[id: 11, type: 0, code: 2, description: "Status_ConnectFailed: 12007", headers: ]
+=== Source Location Trace: ===
+wireless/android/play/playlog/cplusplus/ion_http_client.cc:44

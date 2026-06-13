@@ -19,12 +19,14 @@ def render_settings_page(lang="en"):
     st.title(f"⚙️ {t('settings.title', lang)}")
     st.markdown("---")
     
-    tab_general, tab_langs, tab_camera, tab_models, tab_dataset = st.tabs([
+    # 6 Specialized Tabs
+    tab_general, tab_langs, tab_camera, tab_models, tab_dataset, tab_system = st.tabs([
         "⚙️ General", 
         "🌍 Languages", 
-        "📷 Camera Selection", 
+        "📷 Camera", 
         "🤖 AI Models", 
-        "📊 Dataset & Diagnostics"
+        "📊 Dataset",
+        "💻 System"
     ])
     
     # ─────────────────────────────────────────────────────────────────────────
@@ -47,33 +49,9 @@ def render_settings_page(lang="en"):
             st.markdown("<style>.main { background-color: #000000 !important; color: #FFFFFF !important; } .glass-card { border: 2px solid #FFFFFF !important; }</style>", unsafe_allow_html=True)
         elif theme_mode == "Large Text Mode":
             st.markdown("<style>body, p, button, span, label, select, input { font-size: 20px !important; }</style>", unsafe_allow_html=True)
-            
-        st.markdown("---")
-        st.subheader(f"🗄️ {t('settings.dbMgmt', lang)}")
-        st.caption("Perform system clearing operations. Action cannot be undone.")
-        
-        col_clear_l, col_clear_r = st.columns(2)
-        with col_clear_l:
-            if st.button("🧹 Clear Conversation Telemetry", use_container_width=True):
-                from modules.database import delete_all_conversations
-                delete_all_conversations()
-                st.success("All conversation history log tables successfully cleared!")
-                
-        with col_clear_r:
-            if st.button("👥 Delete All People Profiles", use_container_width=True):
-                from modules.database import get_db_connection
-                try:
-                    conn = get_db_connection()
-                    conn.execute("DELETE FROM people")
-                    conn.execute("DELETE FROM face_vectors")
-                    conn.commit()
-                    conn.close()
-                    st.success("All enrolled face vectors and profiles successfully deleted!")
-                except Exception as e:
-                    st.error(f"Error: {e}")
 
     # ─────────────────────────────────────────────────────────────────────────
-    # Tab 2: Target Languages
+    # Tab 2: Languages
     # ─────────────────────────────────────────────────────────────────────────
     with tab_langs:
         st.subheader("Language Configurations")
@@ -93,8 +71,6 @@ def render_settings_page(lang="en"):
             list(langs_map.values()),
             index=list(langs_map.keys()).index(lang) if lang in langs_map else 0
         )
-        
-        # Get target key
         lang_code = [k for k, v in langs_map.items() if v == selected_lang_name][0]
         
         if st.button("💾 Apply Language Configuration", use_container_width=True):
@@ -103,7 +79,7 @@ def render_settings_page(lang="en"):
             st.rerun()
 
     # ─────────────────────────────────────────────────────────────────────────
-    # Tab 3: Camera & Skeleton overlays
+    # Tab 3: Camera
     # ─────────────────────────────────────────────────────────────────────────
     with tab_camera:
         st.subheader("Camera Input Selection & Overlays")
@@ -131,7 +107,7 @@ def render_settings_page(lang="en"):
         st.session_state.show_hands = show_hands_val
 
     # ─────────────────────────────────────────────────────────────────────────
-    # Tab 4: AI Providers & Models
+    # Tab 4: AI Models
     # ─────────────────────────────────────────────────────────────────────────
     with tab_models:
         st.subheader("AI Models & Providers Selection")
@@ -214,7 +190,7 @@ def render_settings_page(lang="en"):
                 save_setting("ollama_model", active_model)
 
     # ─────────────────────────────────────────────────────────────────────────
-    # Tab 5: Dataset & System Diagnostics
+    # Tab 5: Dataset
     # ─────────────────────────────────────────────────────────────────────────
     with tab_dataset:
         st.subheader(t('settings.datasetsHeader', lang))
@@ -301,11 +277,15 @@ def render_settings_page(lang="en"):
                 st.json(report)
             else:
                 st.error(report)
-                
-        # System Diagnostics Widget
-        st.markdown("---")
-        st.markdown("### 🛠️ Diagnostics Health Check")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Tab 6: System Settings (Diagnostics & DB clearing)
+    # ─────────────────────────────────────────────────────────────────────────
+    with tab_system:
+        st.subheader("System Diagnostics & Database Maintenance")
         
+        # System Diagnostics Checklist
+        st.markdown("#### 🛠️ Diagnostics Health Check")
         webcam_test = False
         try:
             cap = cv2.VideoCapture(0)
@@ -334,3 +314,26 @@ def render_settings_page(lang="en"):
         st.markdown(f"- Webcam hardware status: **{'🟢 Connected' if webcam_test else '🔴 Offline/Occupied'}**")
         st.markdown(f"- Local Ollama Inference Server: **{'🟢 Online' if ollama_test else '🔴 Offline'}**")
         st.markdown(f"- Database integrity check: **{'🟢 Healthy' if db_test else '🔴 Error'}**")
+        
+        st.markdown("---")
+        st.markdown(f"#### 🧹 {t('settings.dbMgmt', lang)}")
+        st.caption("Clean historical communications data and enrolled profiles:")
+        
+        col_clear_l, col_clear_r = st.columns(2)
+        with col_clear_l:
+            if st.button("🧹 Clear Conversation Logs Only", use_container_width=True, key="sys_clear_convs"):
+                from modules.database import delete_all_conversations
+                delete_all_conversations()
+                st.success("Wiped conversations successfully.")
+                
+        with col_clear_r:
+            if st.button("👥 Wipe Enrolled Profiles Registry", use_container_width=True, key="sys_wipe_profiles"):
+                try:
+                    conn = get_db_connection()
+                    conn.execute("DELETE FROM people")
+                    conn.execute("DELETE FROM face_vectors")
+                    conn.commit()
+                    conn.close()
+                    st.success("Wiped all enrolled people registry successfully.")
+                except Exception as e:
+                    st.error(f"Error: {e}")

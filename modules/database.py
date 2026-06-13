@@ -1,11 +1,21 @@
 import json
 import os
 import sqlite3
+import threading
+import time
 from datetime import datetime
 
 
 DB_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "database"))
 DB_PATH = os.path.join(DB_DIR, "signbridge.db")
+
+# ── Settings cache (2s TTL) ──────────────────────────────────────────────────
+# get_setting() previously opened a new SQLite connection on every call (~3ms each).
+# With this cache the hot path is a dict lookup (~0ms) after the first read.
+_settings_lock = threading.Lock()
+_settings_store: dict = {}
+_settings_ts: dict = {}
+_SETTINGS_TTL = 2.0
 
 
 def _now():
@@ -114,14 +124,28 @@ def save_setting(key, value):
     )
     conn.commit()
     conn.close()
+    # Keep cache coherent so the next read returns the new value immediately
+    with _settings_lock:
+        _settings_store[str(key)] = str(value)
+        _settings_ts[str(key)] = time.monotonic()
 
 
 def get_setting(key, default=None):
+    k = str(key)
+    now = time.monotonic()
+    with _settings_lock:
+        if k in _settings_store and now - _settings_ts.get(k, 0.0) < _SETTINGS_TTL:
+            return _settings_store[k]
+    # Cache miss — hit SQLite once
     init_db()
     conn = get_db_connection()
-    row = conn.execute("SELECT value FROM settings WHERE key = ?", (str(key),)).fetchone()
+    row = conn.execute("SELECT value FROM settings WHERE key = ?", (k,)).fetchone()
     conn.close()
-    return row["value"] if row else default
+    result = row["value"] if row else default
+    with _settings_lock:
+        _settings_store[k] = result
+        _settings_ts[k] = time.monotonic()
+    return result
 
 
 def save_person(person_id, name, notes=""):

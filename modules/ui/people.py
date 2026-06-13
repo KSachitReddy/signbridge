@@ -51,7 +51,7 @@ def render_people_page(lang="en"):
                             <strong>ID:</strong> {p['id']}<br>
                             <strong>{t('people.dateAdded', lang)}:</strong> {p['date_added']}<br>
                             <strong>{t('people.lastSeen', lang)}:</strong> {p['last_seen']}<br>
-                            <strong>Accuracy Rating:</strong> <span style="color: #10B981; font-weight: bold;">{avg_acc}</span><br>
+                            <strong>Recognition Accuracy:</strong> <span style="color: #10B981; font-weight: bold;">{avg_acc}</span><br>
                             <strong>Notes:</strong> {p.get('notes') or 'None'}
                         </p>
                     </div>

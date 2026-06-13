@@ -104,6 +104,40 @@ def reinit_insightface(det_size: tuple = (640, 640)):
     _get_insightface_app()
 
 
+def reinit_insightface_async(det_size: tuple = (640, 640)):
+    """Non-blocking variant — runs reinit_insightface in a daemon thread."""
+    import threading
+    threading.Thread(
+        target=reinit_insightface, args=(det_size,),
+        daemon=True, name="InsightFaceReinit"
+    ).start()
+
+
+def preload_models():
+    """
+    Trigger lazy-init for InsightFace, FaceLandmarker, PoseLandmarker, HandLandmarker.
+    Intended to be called once at app startup in a background thread so that the
+    first camera frame does not stall on a cold model load (typically 2–5 seconds).
+    """
+    import threading
+
+    def _load():
+        _get_insightface_app()
+        _get_face_landmarker()
+        try:
+            from modules.pose.holistic import _get_pose_landmarker
+            _get_pose_landmarker()
+        except Exception as exc:
+            print(f"[Preload] pose landmarker: {exc}")
+        try:
+            from modules.hands.landmarks import _get_hand_landmarker
+            _get_hand_landmarker()
+        except Exception as exc:
+            print(f"[Preload] hand landmarker: {exc}")
+
+    threading.Thread(target=_load, daemon=True, name="SignBridgePreload").start()
+
+
 def extract_face_embedding(face_landmarks, img_w, img_h):
     """
     Compatibility shim. Returns a mock vector if frame is not available.

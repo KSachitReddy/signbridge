@@ -115,6 +115,16 @@ elif theme_mode == "Large Text Mode":
 
 st.markdown(css_style, unsafe_allow_html=True)
 
+# Warm up ML models in a background thread after page config is set.
+# st.cache_resource must not be called before st.set_page_config().
+@st.cache_resource
+def _preload_ml_models():
+    from modules.face.face_ai import preload_models
+    preload_models()
+    return True
+
+_preload_ml_models()
+
 # Inject accessibility keyboard shortcuts listener
 st.html("""
 <script>
@@ -180,11 +190,15 @@ label_to_key = {v: k for k, v in nav_labels.items()}
 
 # 5. Sidebar Layout
 st.sidebar.title("🤟 SignBridge AI")
-st.sidebar.caption("ISL Accessibility Platform")
+st.sidebar.caption("ISL Platform")
 
 # Target Quick Language Selector in Sidebar
 st.sidebar.markdown("---")
-sidebar_lang_title = "🌐 Target Language" if st.session_state.lang == "en" else "🌐 भाषा चुनें" if st.session_state.lang == "hi" else "🌐 భాష"      
+_lang_labels = {
+    "en": "🌐 Language", "hi": "🌐 भाषा",   "te": "🌐 భాష",
+    "ta": "🌐 மொழி",     "kn": "🌐 ಭಾಷೆ",   "ml": "🌐 ഭാഷ",   "tcy": "🌐 ಭಾಸೆ",
+}
+sidebar_lang_title = _lang_labels.get(st.session_state.lang, "🌐 Language")
 selected_sidebar_lang = st.sidebar.selectbox(
     sidebar_lang_title,
     ["English", "Hindi", "Telugu", "Tamil", "Kannada", "Malayalam", "Tulu"],
@@ -208,9 +222,13 @@ if sidebar_lang_code != st.session_state.lang:
 
 st.sidebar.markdown("---")
 
+_nav_section_labels = {
+    "en": "Navigation",  "hi": "नेविगेशन",    "te": "నావిగేషన్",
+    "ta": "வழிசெலுத்தல்", "kn": "ನ್ಯಾವಿಗೇಶನ್", "ml": "നാവിഗേഷൻ", "tcy": "ನ್ಯಾವಿಗೇಶನ್",
+}
 # Navigation radio list
 selected_label = st.sidebar.radio(
-    "Navigation" if st.session_state.lang == "en" else "नेविगेशन" if st.session_state.lang == "hi" else "నావిగేషన్",
+    _nav_section_labels.get(st.session_state.lang, "Navigation"),
     list(nav_labels.values()),
     index=list(nav_labels.keys()).index(st.session_state.active_page)
 )
@@ -222,7 +240,20 @@ if new_active_page != st.session_state.active_page:
     st.rerun()
 
 st.sidebar.markdown("---")
-st.sidebar.info("🇮🇳 Supported languages: English, Hindi, Telugu, Tamil, Kannada, Malayalam, Tulu")
+
+_mode_section_labels = {
+    "en": "Mode",    "hi": "मोड",   "te": "మోడ్",
+    "ta": "பயன்முறை", "kn": "ಮೋಡ್", "ml": "മോഡ്", "tcy": "ಮೋಡ್",
+}
+# Compact Processing Mode in Sidebar
+from modules.perf import PERF_MODES
+selected_mode = st.sidebar.radio(
+    _mode_section_labels.get(st.session_state.lang, "Mode"),
+    list(PERF_MODES.keys()),
+    index=list(PERF_MODES.keys()).index(st.session_state.get("perf_mode", "⚖️ Balanced")),
+    key="perf_mode_radio"
+)
+st.session_state.perf_mode = selected_mode
 
 # 6. Render Active View
 pages[st.session_state.active_page](lang=st.session_state.lang)
