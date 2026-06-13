@@ -46,6 +46,11 @@ def _get_hand_landmarker():
     if _hand_landmarker is not None:
         return _hand_landmarker
 
+    if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+        print("[HandLandmarker] Skip HandLandmarker in Streamlit Cloud/Spaces environment.")
+        _hand_landmarker = "FAILED"
+        return _hand_landmarker
+
     if not _ensure_model():
         _hand_landmarker = "FAILED"
         return _hand_landmarker

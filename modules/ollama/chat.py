@@ -8,6 +8,7 @@ if Ollama is unavailable or the model is slow.
 
 import requests
 import json
+import os
 from modules.database import get_setting
 from modules.providers import get_provider_key
 from modules.providers.cloud import cloud_generate_response as _cloud_response
@@ -137,6 +138,8 @@ def _translate_response_te(sign: str) -> str:
 
 def _ollama_response(sign: str, translation: str, person_name: str, lang: str) -> str | None:
     """Calls local Ollama API and returns the response string, or None on failure."""
+    if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+        return None
     endpoint = get_setting("ollama_endpoint", "http://localhost:11434").rstrip("/")
     model = get_setting("ollama_model", "deepseek-r1:1.5b")
 
@@ -199,6 +202,8 @@ def get_conversation_summary(recent_signs: list, person_name: str = "User", lang
 
     ai_provider = get_setting("ai_provider", "None (Offline Dictionary)")
     if ai_provider == "Ollama":
+        if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+            return f"{person_name} communicated: {sign_list}."
         endpoint = get_setting("ollama_endpoint", "http://localhost:11434").rstrip("/")
         model = get_setting("ollama_model", "deepseek-r1:1.5b")
         try:

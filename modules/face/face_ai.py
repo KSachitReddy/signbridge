@@ -45,6 +45,11 @@ def _get_face_landmarker():
     if _face_landmarker is not None:
         return _face_landmarker
 
+    if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+        print("[FaceLandmarker] Skip FaceLandmarker in Streamlit Cloud/Spaces environment.")
+        _face_landmarker = "FAILED"
+        return _face_landmarker
+
     if not _ensure_mediapipe_model():
         _face_landmarker = "FAILED"
         return _face_landmarker

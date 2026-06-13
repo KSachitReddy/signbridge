@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import os
 from modules.locales import t
 from modules.database import get_db_connection
 from modules.ollama.manage import get_ollama_endpoint
@@ -32,11 +33,12 @@ def render_home_page(lang="en"):
  
     # Ollama Health Check
     ollama_ok = False
-    try:
-        res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
-        ollama_ok = res.status_code == 200
-    except Exception:
-        ollama_ok = False
+    if not (os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID")):
+        try:
+            res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
+            ollama_ok = res.status_code == 200
+        except Exception:
+            ollama_ok = False
  
     # Render Health Status Cards
     col1, col2, col3, col4 = st.columns(4)
@@ -84,11 +86,12 @@ def render_home_page(lang="en"):
     st.markdown("<br>", unsafe_allow_html=True)
  
     # ── 2. Onboarding Mission Card ────────────────────────────────────────────
+    mission_text = t('about.missionText', lang)
     st.markdown(f"""
     <div class="glass-card" style="border-left: 5px solid #8B5CF6; padding: 20px;">
         <h4 style="margin: 0 0 10px 0; color: #8B5CF6; font-size: 18px;">🌟 Our Mission</h4>
         <p style="margin: 0; color: #E2E8F0; font-size: 15px; line-height: 1.6;">
-            {t("about.missionText", lang)}
+            {mission_text}
         </p>
     </div>
     """, unsafe_allow_html=True)

@@ -1,4 +1,5 @@
 import requests
+import os
 
 from modules.database import get_setting
 from modules.providers import get_provider_key
@@ -116,6 +117,8 @@ def _fallback(sign_label, lang):
 
 
 def _ollama_translate(sign_label, lang):
+    if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+        return ""
     endpoint = get_setting("ollama_endpoint", "http://localhost:11434")
     model = get_setting("ollama_model", "llama3")
     try:

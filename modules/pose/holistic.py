@@ -69,6 +69,11 @@ def _get_pose_landmarker():
     if _pose_landmarker is not None:
         return _pose_landmarker
 
+    if os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID"):
+        print("[PoseLandmarker] Skip PoseLandmarker in Streamlit Cloud/Spaces environment.")
+        _pose_landmarker = "FAILED"
+        return _pose_landmarker
+
     if not _ensure_model():
         _pose_landmarker = "FAILED"
         return _pose_landmarker

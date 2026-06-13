@@ -286,23 +286,16 @@ def render_settings_page(lang="en"):
         
         # System Diagnostics Checklist
         st.markdown("#### 🛠️ Diagnostics Health Check")
-        webcam_test = False
-        # Do not attempt to initialize local webcam on headless cloud environments
-        if not os.environ.get("STREAMLIT_SHARING_MODE") and not os.environ.get("SPACE_ID"):
-            try:
-                cap = cv2.VideoCapture(0)
-                if cap.isOpened():
-                    webcam_test = True
-                    cap.release()
-            except Exception:
-                pass
+        # We always report True/Available because camera is handled in the browser via WebRTC
+        webcam_test = True
             
         ollama_test = False
-        try:
-            res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
-            ollama_test = res.status_code == 200
-        except Exception:
-            pass
+        if not (os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID")):
+            try:
+                res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
+                ollama_test = res.status_code == 200
+            except Exception:
+                pass
             
         db_test = False
         try:

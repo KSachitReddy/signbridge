@@ -1,5 +1,6 @@
 import requests
 import json
+import os
 from modules.database import get_setting, save_setting
 
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
@@ -17,31 +18,32 @@ def get_ollama_endpoint():
 
 def list_installed_models():
     """Queries local Ollama for installed models. Falls back to simulated catalog."""
-    url = f"{get_ollama_endpoint()}/api/tags"
-    try:
-        res = requests.get(url, timeout=1.0)
-        if res.status_code == 200:
-            data = res.json()
-            models = []
-            for m in data.get("models", []):
-                size_gb = round(m.get("size", 0) / (1024**3), 2)
-                models.append({
-                    "name": m.get("name"),
-                    "size": f"{size_gb} GB",
-                    "status": "Installed"
-                })
-            # Add other catalog items as available
-            installed_names = [x["name"].split(":")[0] for x in models]
-            for c_name, c_info in MODELS_CATALOG.items():
-                if c_name not in installed_names:
+    if not (os.environ.get("STREAMLIT_SHARING_MODE") or os.environ.get("SPACE_ID")):
+        url = f"{get_ollama_endpoint()}/api/tags"
+        try:
+            res = requests.get(url, timeout=1.0)
+            if res.status_code == 200:
+                data = res.json()
+                models = []
+                for m in data.get("models", []):
+                    size_gb = round(m.get("size", 0) / (1024**3), 2)
                     models.append({
-                        "name": c_name,
-                        "size": c_info["size"],
-                        "status": "Available"
+                        "name": m.get("name"),
+                        "size": f"{size_gb} GB",
+                        "status": "Installed"
                     })
-            return models
-    except Exception:
-        pass
+                # Add other catalog items as available
+                installed_names = [x["name"].split(":")[0] for x in models]
+                for c_name, c_info in MODELS_CATALOG.items():
+                    if c_name not in installed_names:
+                        models.append({
+                            "name": c_name,
+                            "size": c_info["size"],
+                            "status": "Available"
+                        })
+                return models
+        except Exception:
+            pass
         
     # Return simulated mock models catalog if Ollama is offline or not running
     models = []
