@@ -16,3 +16,6 @@ bcrypt
 starlette
 pytest
 pytest-asyncio
+av==15.0.0
+streamlit-webrtc==0.63.11
+aiortc==1.13.0
