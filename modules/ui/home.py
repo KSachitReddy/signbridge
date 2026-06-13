@@ -12,68 +12,31 @@ def render_home_page(lang="en"):
     
     st.markdown("---")
     
-    # ── 1. Health Status Dashboard ─────────────────────────────────────────────
-    # Safe Webcam Check
-    webcam_ok = False
-    try:
-        cap = cv2.VideoCapture(0)
-        if cap.isOpened():
-            webcam_ok = True
-            cap.release()
-    except Exception:
-        webcam_ok = False
-        
-    # Database Counts
-    db_convs = 0
-    db_people = 0
-    try:
-        conn = get_db_connection()
-        db_convs = conn.execute("SELECT COUNT(*) FROM conversations").fetchone()[0]
-        db_people = conn.execute("SELECT COUNT(*) FROM people").fetchone()[0]
-        conn.close()
-    except Exception:
-        pass
-        
-    # Ollama Health Check
-    ollama_ok = False
-    try:
-        res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
-        ollama_ok = res.status_code == 200
-    except Exception:
-        ollama_ok = False
-        
-    st.markdown("### 📋 System Health Indicators")
-    col_webcam, col_db, col_ollama = st.columns(3)
-    
-    with col_webcam:
-        status_webcam = "🟢 Connected" if webcam_ok else "🔴 Offline / In-use"
-        st.markdown(f"""
-        <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="margin: 0; font-size: 14px; color: #94A3B8;">📷 Webcam Connection</p>
-            <h3 style="margin: 10px 0 0 0; color: {'#10B981' if webcam_ok else '#EF4444'}; font-size: 20px;">{status_webcam}</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_db:
-        st.markdown(f"""
-        <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="margin: 0; font-size: 14px; color: #94A3B8;">🗄️ Database Stats</p>
-            <h3 style="margin: 10px 0 0 0; color: #3B82F6; font-size: 20px;">{db_people} Profiles / {db_convs} Logs</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    with col_ollama:
-        status_ollama = "🟢 Running" if ollama_ok else "🔴 Offline"
-        st.markdown(f"""
-        <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="margin: 0; font-size: 14px; color: #94A3B8;">🤖 Local LLM (Ollama)</p>
-            <h3 style="margin: 10px 0 0 0; color: {'#10B981' if ollama_ok else '#EF4444'}; font-size: 20px;">{status_ollama}</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-    st.markdown("<br>", unsafe_allow_html=True)
+# ── 1. Health Status Dashboard ─────────────────────────────────────────────
 
-    # ── 2. Onboarding Mission Card ────────────────────────────────────────────
+# Streamlit Cloud cannot access server webcams.
+# Browser camera access is handled separately in live pages.
+webcam_ok = True
+
+# Database Counts
+db_convs = 0
+db_people = 0
+try:
+    conn = get_db_connection()
+    db_convs = conn.execute("SELECT COUNT(*) FROM conversations").fetchone()[0]
+    db_people = conn.execute("SELECT COUNT(*) FROM people").fetchone()[0]
+    conn.close()
+except Exception:
+    pass
+
+# Ollama Health Check
+ollama_ok = False
+try:
+    res = requests.get(f"{get_ollama_endpoint()}/api/tags", timeout=0.8)
+    ollama_ok = res.status_code == 200
+except Exception:
+    ollama_ok = False
+  # ── 2. Onboarding Mission Card ────────────────────────────────────────────
     st.markdown(f"""
     <div class="glass-card" style="border-left: 5px solid #8B5CF6; padding: 20px;">
         <h4 style="margin: 0 0 10px 0; color: #8B5CF6; font-size: 18px;">🌟 Our Mission</h4>
