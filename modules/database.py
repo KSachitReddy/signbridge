@@ -111,6 +111,42 @@ def init_db():
         )
         """
     )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS documents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filename TEXT NOT NULL,
+            filepath TEXT NOT NULL,
+            file_size INTEGER DEFAULT 0,
+            page_count INTEGER DEFAULT 0,
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS doc_sections (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_id INTEGER NOT NULL,
+            section_index INTEGER NOT NULL,
+            heading TEXT DEFAULT '',
+            content TEXT NOT NULL,
+            FOREIGN KEY(doc_id) REFERENCES documents(id) ON DELETE CASCADE
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS doc_queries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            doc_id INTEGER,
+            question TEXT NOT NULL,
+            answer TEXT NOT NULL,
+            sources TEXT DEFAULT '[]',
+            created_at TEXT NOT NULL
+        )
+        """
+    )
     conn.commit()
     conn.close()
 
@@ -407,6 +443,92 @@ def import_database_json(backup_content):
             )
     conn.commit()
     conn.close()
+
+
+# ── Document Q&A helpers ──────────────────────────────────────────────────────
+
+def add_document(filename, filepath, file_size=0, page_count=0):
+    init_db()
+    conn = get_db_connection()
+    cur = conn.execute(
+        "INSERT INTO documents (filename, filepath, file_size, page_count, created_at) VALUES (?,?,?,?,?)",
+        (filename, filepath, file_size, page_count, _now()),
+    )
+    doc_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return doc_id
+
+
+def add_doc_sections(doc_id, sections):
+    """sections: list of {"heading": str, "content": str}"""
+    init_db()
+    conn = get_db_connection()
+    for idx, sec in enumerate(sections):
+        conn.execute(
+            "INSERT INTO doc_sections (doc_id, section_index, heading, content) VALUES (?,?,?,?)",
+            (doc_id, idx, sec.get("heading", ""), sec.get("content", "")),
+        )
+    conn.commit()
+    conn.close()
+
+
+def get_doc_sections(doc_id):
+    init_db()
+    conn = get_db_connection()
+    rows = conn.execute(
+        "SELECT * FROM doc_sections WHERE doc_id = ? ORDER BY section_index",
+        (doc_id,),
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_all_documents():
+    init_db()
+    conn = get_db_connection()
+    rows = conn.execute("SELECT * FROM documents ORDER BY id DESC").fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def delete_document(doc_id):
+    init_db()
+    conn = get_db_connection()
+    conn.execute("DELETE FROM doc_sections WHERE doc_id = ?", (doc_id,))
+    conn.execute("DELETE FROM doc_queries WHERE doc_id = ?", (doc_id,))
+    conn.execute("DELETE FROM documents WHERE id = ?", (doc_id,))
+    conn.commit()
+    conn.close()
+
+
+def add_doc_query(doc_id, question, answer, sources=None):
+    init_db()
+    conn = get_db_connection()
+    conn.execute(
+        "INSERT INTO doc_queries (doc_id, question, answer, sources, created_at) VALUES (?,?,?,?,?)",
+        (doc_id, question, answer, json.dumps(sources or []), _now()),
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_doc_queries(doc_id=None):
+    init_db()
+    conn = get_db_connection()
+    if doc_id is not None:
+        rows = conn.execute(
+            "SELECT * FROM doc_queries WHERE doc_id = ? ORDER BY id DESC", (doc_id,)
+        ).fetchall()
+    else:
+        rows = conn.execute("SELECT * FROM doc_queries ORDER BY id DESC").fetchall()
+    conn.close()
+    out = []
+    for row in rows:
+        item = dict(row)
+        item["sources"] = _json_load(item.get("sources"), [])
+        out.append(item)
+    return out
 
 
 init_db()
