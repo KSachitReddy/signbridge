@@ -23,3 +23,6 @@ pytest-asyncio
 av>=14.0.0,<15.0.0
 streamlit-webrtc==0.63.11
 aiortc==1.13.0
+pymupdf4llm>=0.0.17
+llama-cpp-python>=0.3.0
+rank_bm25>=0.2.2
