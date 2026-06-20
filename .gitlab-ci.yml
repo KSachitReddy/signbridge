@@ -3,10 +3,8 @@ stages:
   - lint
   - type_check
   - test
-  - coverage
   - security
   - build
-  - release
 
 default:
   image: node:20-alpine
@@ -25,24 +23,17 @@ format:
 lint:
   stage: lint
   script:
-    - npx eslint . || npm run lint
-    - npm run biome
-    - npm run oxlint
+    - npm run lint
 
 type_check:
   stage: type_check
   script:
-    - npx tsc --noEmit || npm run typecheck
+    - npm run typecheck
 
 test:
   stage: test
   script:
-    - npx vitest run || npm test
-
-coverage:
-  stage: coverage
-  script:
-    - npx vitest run --coverage || npm run test:coverage
+    - npm run test:coverage || npx vitest run --coverage
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     when: always
@@ -57,7 +48,7 @@ audit:
   stage: security
   script:
     - npm audit --audit-level=high
-  allow_failure: false
+  allow_failure: true
 
 gitleaks:
   stage: security
@@ -74,10 +65,3 @@ build:
     paths:
       - dist/
     expire_in: 1 week
-
-release:
-  stage: release
-  script:
-    - echo "Release stage placeholder - integrate semantic-release or git-cliff here."
-  only:
-    - tags

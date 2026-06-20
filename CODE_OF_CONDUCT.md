@@ -54,7 +54,7 @@ This Code of Conduct applies within all community spaces — including GitHub re
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the SignBridge maintainers at:
 
-**📧 conduct@signbridge.ai** *(replace with your actual contact)*
+**📧 conduct@signbridge.ai** _(replace with your actual contact)_
 
 All complaints will be reviewed and investigated promptly and fairly. All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 
@@ -65,18 +65,22 @@ All complaints will be reviewed and investigated promptly and fairly. All commun
 Community leaders will follow these Community Impact Guidelines in determining the consequences for any action they deem in violation of this Code of Conduct:
 
 ### 1. Correction
+
 **Community Impact:** Use of inappropriate language or other behavior deemed unprofessional or unwelcome.
 **Consequence:** A private, written warning from community leaders, providing clarity around the nature of the violation and an explanation of why the behavior was inappropriate.
 
 ### 2. Warning
+
 **Community Impact:** A violation through a single incident or series of actions.
 **Consequence:** A warning with consequences for continued behavior. No interaction with the people involved, including unsolicited interaction with those enforcing the Code of Conduct, for a specified period of time.
 
 ### 3. Temporary Ban
+
 **Community Impact:** A serious violation of community standards, including sustained inappropriate behavior.
 **Consequence:** A temporary ban from any sort of interaction or public communication with the community for a specified period of time.
 
 ### 4. Permanent Ban
+
 **Community Impact:** Demonstrating a pattern of violation of community standards, including sustained inappropriate behavior, harassment of an individual, or aggression toward or disparagement of classes of individuals.
 **Consequence:** A permanent ban from any sort of public interaction within the community.
 
@@ -90,4 +94,4 @@ Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcem
 
 ---
 
-*© 2025 SignBridge. All rights reserved.*
+_© 2025 SignBridge. All rights reserved._

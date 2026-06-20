@@ -21,8 +21,8 @@ export const LanguageSwitcher: React.FC = () => {
   return (
     <div className="lang-switcher">
       {languages.map((lang) => (
-        <button 
-          key={lang.code} 
+        <button
+          key={lang.code}
           onClick={() => changeLanguage(lang.code)}
           className={i18n.language === lang.code ? 'active' : ''}
         >

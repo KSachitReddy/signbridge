@@ -34,12 +34,12 @@
 
 ### Who is SignBridge for?
 
-| You are... | SignBridge helps you... |
-|------------|------------------------|
-| A deaf or mute individual | Communicate through sign translation and express yourself digitally |
-| A hearing person | Learn sign language and communicate back with sign demonstrations |
-| An educator | Teach sign language interactively with structured lessons |
-| A business or organization | Support inclusive workplace communication |
+| You are...                 | SignBridge helps you...                                             |
+| -------------------------- | ------------------------------------------------------------------- |
+| A deaf or mute individual  | Communicate through sign translation and express yourself digitally |
+| A hearing person           | Learn sign language and communicate back with sign demonstrations   |
+| An educator                | Teach sign language interactively with structured lessons           |
+| A business or organization | Support inclusive workplace communication                           |
 
 ---
 
@@ -47,12 +47,12 @@
 
 ### System Requirements
 
-| Requirement | Minimum |
-|-------------|---------|
-| Browser | Chrome 90+, Firefox 88+, Edge 90+, Safari 15+ |
-| Camera | Any built-in or USB webcam |
-| Internet | Required for initial load; gesture recognition runs on-device |
-| OS | Windows, macOS, Linux, Android, iOS |
+| Requirement | Minimum                                                       |
+| ----------- | ------------------------------------------------------------- |
+| Browser     | Chrome 90+, Firefox 88+, Edge 90+, Safari 15+                 |
+| Camera      | Any built-in or USB webcam                                    |
+| Internet    | Required for initial load; gesture recognition runs on-device |
+| OS          | Windows, macOS, Linux, Android, iOS                           |
 
 No account or login is required.
 
@@ -151,6 +151,7 @@ Use this when you want to sign and have your signs converted into written text.
 6. Click **Copy** to copy the text, or **Clear** to reset the output.
 
 **Tips for best accuracy:**
+
 - Keep your hands within the camera frame at all times.
 - Sign at a natural, moderate pace — very fast signing may reduce accuracy.
 - Ensure good lighting on your hands.
@@ -182,7 +183,7 @@ Both panels can be open side by side for a two-way conversation between a signin
 
 ### Language Fallback
 
-If a particular sign does not have a direct mapping in the selected language, SignBridge will display the English equivalent with a note: *"No direct [Language] equivalent — showing English."*
+If a particular sign does not have a direct mapping in the selected language, SignBridge will display the English equivalent with a note: _"No direct [Language] equivalent — showing English."_
 
 ---
 
@@ -190,12 +191,12 @@ If a particular sign does not have a direct mapping in the selected language, Si
 
 SignBridge AI is designed with privacy as a core principle.
 
-| Data Type | How It Is Handled |
-|-----------|------------------|
-| Webcam video | Processed entirely on your device. Never transmitted to any server. |
+| Data Type         | How It Is Handled                                                                |
+| ----------------- | -------------------------------------------------------------------------------- |
+| Webcam video      | Processed entirely on your device. Never transmitted to any server.              |
 | Learning progress | Stored locally in your browser (localStorage). Never sent to SignBridge servers. |
-| Usage analytics | Anonymized, aggregated page visit data only. No personal data. |
-| Account data | No account required. No personal data is collected. |
+| Usage analytics   | Anonymized, aggregated page visit data only. No personal data.                   |
+| Account data      | No account required. No personal data is collected.                              |
 
 **To clear your local data:** Open your browser settings → Site data → Clear data for signbridge-ai-final.vercel.app.
 
@@ -223,16 +224,19 @@ If you encounter any accessibility issue, please report it at **accessibility@si
 **Problem:** You accidentally denied camera access and the camera does not start.
 
 **Solution (Chrome):**
+
 1. Click the 🔒 lock icon in the address bar.
 2. Find **Camera** and change it to **Allow**.
 3. Refresh the page.
 
 **Solution (Firefox):**
+
 1. Click the camera icon in the address bar.
 2. Remove the blocked permission.
 3. Refresh and click **Allow** when prompted again.
 
 **Solution (Safari):**
+
 1. Go to **Safari → Settings → Websites → Camera**.
 2. Find SignBridge and set it to **Allow**.
 3. Refresh the page.
@@ -243,12 +247,12 @@ If you encounter any accessibility issue, please report it at **accessibility@si
 
 **Possible causes and fixes:**
 
-| Cause | Fix |
-|-------|-----|
-| Another app is using the camera | Close other apps using the webcam (Zoom, Teams, etc.) and refresh |
-| Browser camera permission not granted | See Camera Permission Blocked above |
-| Outdated browser | Update your browser to the latest version |
-| Driver issue (Windows) | Update your webcam drivers via Device Manager |
+| Cause                                 | Fix                                                               |
+| ------------------------------------- | ----------------------------------------------------------------- |
+| Another app is using the camera       | Close other apps using the webcam (Zoom, Teams, etc.) and refresh |
+| Browser camera permission not granted | See Camera Permission Blocked above                               |
+| Outdated browser                      | Update your browser to the latest version                         |
+| Driver issue (Windows)                | Update your webcam drivers via Device Manager                     |
 
 ---
 
@@ -267,13 +271,14 @@ If you encounter any accessibility issue, please report it at **accessibility@si
 1. Check your internet connection.
 2. Clear your browser cache and reload.
 3. Try a different browser.
-4. Check the SignBridge status page: **https://status.signbridge.ai** *(if available)*.
+4. Check the SignBridge status page: **https://status.signbridge.ai** _(if available)_.
 
 ---
 
 ### Progress Not Saved
 
 Learning progress is saved in your browser's local storage. Progress is lost if you:
+
 - Clear browser data / site data
 - Use a different browser or device
 - Use private/incognito mode
@@ -309,15 +314,16 @@ A: Close unused browser tabs, ensure no other apps are using the webcam, and try
 
 ## 11. Contact & Support
 
-| Channel | Details |
-|---------|---------|
-| 🌐 Live App | https://signbridge-ai-final.vercel.app |
-| 📧 General Support | support@signbridge.ai |
-| ♿ Accessibility | accessibility@signbridge.ai |
-| 💬 GitHub Issues | https://github.com/signbridge/signbridge-ai/issues |
-| 📋 Code of Conduct | See `CODE_OF_CONDUCT.md` |
+| Channel            | Details                                            |
+| ------------------ | -------------------------------------------------- |
+| 🌐 Live App        | https://signbridge-ai-final.vercel.app             |
+| 📧 General Support | support@signbridge.ai                              |
+| ♿ Accessibility   | accessibility@signbridge.ai                        |
+| 💬 GitHub Issues   | https://github.com/signbridge/signbridge-ai/issues |
+| 📋 Code of Conduct | See `CODE_OF_CONDUCT.md`                           |
 
 For bug reports, please include:
+
 - Your browser and version
 - Your operating system
 - A description of what you expected vs. what happened
@@ -325,4 +331,4 @@ For bug reports, please include:
 
 ---
 
-*Made with ❤️ by the SignBridge Team | © 2025 SignBridge. All rights reserved.*
+_Made with ❤️ by the SignBridge Team | © 2025 SignBridge. All rights reserved._

@@ -15,7 +15,7 @@ function App() {
       const ctx = overlayCanvasRef.current.getContext('2d');
       if (ctx) {
         ctx.clearRect(0, 0, 640, 480);
-        
+
         // Draw Neon Hands
         if (recognitionResult.gesture?.landmarks) {
           ctx.strokeStyle = '#00ffff'; // Neon blue/cyan
@@ -41,28 +41,44 @@ function App() {
         </div>
         <LanguageSwitcher />
       </header>
-      
+
       <main className="content">
         <div className="video-card glass">
           <video ref={videoRef} className="video-feed" muted playsInline />
           <canvas ref={canvasRef} style={{ display: 'none' }} width="640" height="480" />
           <canvas ref={overlayCanvasRef} className="overlay-canvas" width="640" height="480" />
-          
+
           {recognitionResult && (
             <div className="overlay">
-              <p>{t('person')}: {recognitionResult.face?.results?.[0]?.identity || t('unknown')}</p>
-              <p>{t('gesture')}: {recognitionResult.gesture?.translated_text || recognitionResult.gesture?.label || t('none')}</p>
-              <p>{t('emotion')}: {recognitionResult.emotion?.emotion || t('neutral')}</p>
+              <p>
+                {t('person')}: {recognitionResult.face?.results?.[0]?.identity || t('unknown')}
+              </p>
+              <p>
+                {t('gesture')}:{' '}
+                {recognitionResult.gesture?.translated_text ||
+                  recognitionResult.gesture?.label ||
+                  t('none')}
+              </p>
+              <p>
+                {t('emotion')}: {recognitionResult.emotion?.emotion || t('neutral')}
+              </p>
               <p>🌐 {i18n.language.toUpperCase()}</p>
-              <button className="copy-btn" title="Copy Translation">📋</button>
+              <button className="copy-btn" title="Copy Translation">
+                📋
+              </button>
             </div>
           )}
         </div>
-        <AnalyticsDashboard logs={[
-          {emotion: 'Happy'}, {emotion: 'Happy'}, 
-          {emotion: 'Neutral'}, {emotion: 'Neutral'}, {emotion: 'Neutral'},
-          {emotion: 'Sad'}
-        ]} />
+        <AnalyticsDashboard
+          logs={[
+            { emotion: 'Happy' },
+            { emotion: 'Happy' },
+            { emotion: 'Neutral' },
+            { emotion: 'Neutral' },
+            { emotion: 'Neutral' },
+            { emotion: 'Sad' },
+          ]}
+        />
       </main>
     </div>
   );

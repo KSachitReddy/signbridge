@@ -32,17 +32,17 @@ By participating in this project, you agree to abide by our [Code of Conduct](CO
 
 You do not need to be a developer to contribute. Here are all the ways you can help:
 
-| Contribution Type | Description |
-|-------------------|-------------|
-| 🐛 Bug reports | Report issues you encounter while using the app |
-| 💡 Feature requests | Suggest improvements or new ideas |
-| 💻 Code | Fix bugs, implement features, improve performance |
-| 🤟 Sign data | Contribute sign gesture datasets for new vocabulary or languages |
-| 🌐 Translations | Translate UI strings into supported or new languages |
-| 📖 Documentation | Improve the README, User Manual, or inline code comments |
-| ♿ Accessibility | Identify and fix accessibility gaps |
-| 🧪 Testing | Write or improve unit, integration, or E2E tests |
-| 🎨 Design | Improve UI/UX, icons, or visual design |
+| Contribution Type   | Description                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| 🐛 Bug reports      | Report issues you encounter while using the app                  |
+| 💡 Feature requests | Suggest improvements or new ideas                                |
+| 💻 Code             | Fix bugs, implement features, improve performance                |
+| 🤟 Sign data        | Contribute sign gesture datasets for new vocabulary or languages |
+| 🌐 Translations     | Translate UI strings into supported or new languages             |
+| 📖 Documentation    | Improve the README, User Manual, or inline code comments         |
+| ♿ Accessibility    | Identify and fix accessibility gaps                              |
+| 🧪 Testing          | Write or improve unit, integration, or E2E tests                 |
+| 🎨 Design           | Improve UI/UX, icons, or visual design                           |
 
 ---
 
@@ -127,18 +127,19 @@ git push origin main
 
 Use the following prefixes:
 
-| Prefix | Use for |
-|--------|---------|
-| `feature/` | New features |
-| `fix/` | Bug fixes |
-| `docs/` | Documentation changes only |
+| Prefix      | Use for                                  |
+| ----------- | ---------------------------------------- |
+| `feature/`  | New features                             |
+| `fix/`      | Bug fixes                                |
+| `docs/`     | Documentation changes only               |
 | `refactor/` | Code refactoring without behavior change |
-| `test/` | Adding or improving tests |
-| `chore/` | Build, tooling, or dependency updates |
-| `a11y/` | Accessibility improvements |
-| `i18n/` | Localization / translation changes |
+| `test/`     | Adding or improving tests                |
+| `chore/`    | Build, tooling, or dependency updates    |
+| `a11y/`     | Accessibility improvements               |
+| `i18n/`     | Localization / translation changes       |
 
 **Examples:**
+
 ```
 feature/tulu-language-support
 fix/safari-camera-black-screen
@@ -214,11 +215,11 @@ Commits that do not follow this format will be flagged during the PR review.
 
 Keep PRs small and focused. A PR that does one thing is reviewed faster and merged sooner.
 
-| PR Size | Lines Changed | Guidance |
-|---------|--------------|----------|
-| Small ✅ | < 200 | Ideal — quick to review |
-| Medium ⚠️ | 200–500 | Acceptable with clear description |
-| Large 🔴 | 500+ | Please split into smaller PRs if possible |
+| PR Size   | Lines Changed | Guidance                                  |
+| --------- | ------------- | ----------------------------------------- |
+| Small ✅  | < 200         | Ideal — quick to review                   |
+| Medium ⚠️ | 200–500       | Acceptable with clear description         |
+| Large 🔴  | 500+          | Please split into smaller PRs if possible |
 
 ---
 
@@ -396,6 +397,7 @@ src/lib/i18n/
 ### Adding a Brand New Language
 
 Open an issue using the **New Language Request** template before starting. New languages require:
+
 - A UI translation JSON file
 - At least partial sign vocabulary coverage in `src/lib/signs/`
 - Confirmation that the language's script renders correctly
@@ -405,6 +407,7 @@ Open an issue using the **New Language Request** template before starting. New l
 ## 11. Reporting Bugs
 
 Before filing a bug, please:
+
 - Search [existing issues](https://github.com/signbridge/signbridge-ai/issues) to avoid duplicates.
 - Confirm you're using a supported browser and version.
 
@@ -442,10 +445,12 @@ If applicable.
 ## 12. Suggesting Features
 
 We love feature ideas! Before submitting:
+
 - Check the [Roadmap in README](README.md#roadmap) — it may already be planned.
 - Search [existing issues](https://github.com/signbridge/signbridge-ai/issues) for duplicates.
 
 Use the **Feature Request** template and describe:
+
 - The problem your feature solves
 - Who it helps (deaf users, educators, hearing users, etc.)
 - Your proposed solution
@@ -457,20 +462,20 @@ Features that directly improve accessibility and communication for deaf and mute
 
 ## 13. Community & Communication
 
-| Channel | Purpose |
-|---------|---------|
-| [GitHub Issues](https://github.com/signbridge/signbridge-ai/issues) | Bug reports, feature requests, sign data contributions |
-| [GitHub Discussions](https://github.com/signbridge/signbridge-ai/discussions) | General questions, ideas, community chat |
-| 📧 contribute@signbridge.ai | Reach the maintainers directly |
+| Channel                                                                       | Purpose                                                |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [GitHub Issues](https://github.com/signbridge/signbridge-ai/issues)           | Bug reports, feature requests, sign data contributions |
+| [GitHub Discussions](https://github.com/signbridge/signbridge-ai/discussions) | General questions, ideas, community chat               |
+| 📧 contribute@signbridge.ai                                                   | Reach the maintainers directly                         |
 
 ### Response Times
 
-| Type | Expected Response |
-|------|------------------|
-| Bug reports | 2–3 business days |
-| Feature requests | 3–5 business days |
-| Pull requests | 3–5 business days |
-| Security issues | 24 hours (see below) |
+| Type             | Expected Response    |
+| ---------------- | -------------------- |
+| Bug reports      | 2–3 business days    |
+| Feature requests | 3–5 business days    |
+| Pull requests    | 3–5 business days    |
+| Security issues  | 24 hours (see below) |
 
 ### Security Vulnerabilities
 
@@ -487,4 +492,4 @@ Thank you for helping us build technology that makes the world more inclusive. �
 
 ---
 
-*© 2025 SignBridge. All rights reserved.*
+_© 2025 SignBridge. All rights reserved._

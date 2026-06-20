@@ -40,7 +40,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
         activeStream = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play().catch((err) => console.error("Video play error:", err));
+          videoRef.current.play().catch((err) => console.error('Video play error:', err));
         }
 
         intervalId = setInterval(() => {
@@ -55,7 +55,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
           }
         }, 100); // 10 FPS
       } catch (error) {
-        console.error("Camera access error:", error);
+        console.error('Camera access error:', error);
       }
     };
 
