@@ -199,7 +199,7 @@ Event format:
    ```
 3. Register your agent in `src/lib/agents/index.ts`
 4. Add unit tests under `src/lib/agents/__tests__/`
-5. Document it in this file under a new numbered section
+5. Document it in this file under a new numbered section.
 
 ---
 
@@ -213,5 +213,3 @@ Event format:
 | `CommunityAgent` | Powers the learner community forum and peer feedback features | Planned |
 
 ---
-
-*© 2025 SignBridge. All rights reserved.*
