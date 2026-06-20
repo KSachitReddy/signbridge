@@ -6,7 +6,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-## [Unreleased]
 
 ### Planned
 - Multi-language sign language support (ISL, BSL, ASL extended vocabulary)
@@ -17,7 +16,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-## [1.3.0] — 2025-06-01
 
 ### Added
 - **Tulu (TCY)** language support — SignBridge now supports 7 regional Indian languages
