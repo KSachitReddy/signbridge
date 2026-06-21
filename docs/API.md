@@ -1,6 +1,6 @@
 # API Documentation
 
-The SignBridge AI backend provides several endpoints for real-time sign language recognition, face enrollment, and data management.
+The SignBridge AI backend provides several endpoints for real-time sign language recognition, face enrollment, and data management of human.
 
 ## Endpoints
 
