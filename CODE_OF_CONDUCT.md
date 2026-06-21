@@ -93,5 +93,3 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
 
 ---
-
-_© 2025 SignBridge. All rights reserved._
