@@ -6,7 +6,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
-
 ### Planned
 
 - Multi-language sign language support (ISL, BSL, ASL extended vocabulary)
@@ -16,7 +15,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Community forum for learners and educators
 
 ---
-
 
 ### Added
 

@@ -48,3 +48,6 @@ models/deploy.prototxt
 
 # Temporary log outputs
 *.txt
+
+# GitLab runner builds directory
+builds/
