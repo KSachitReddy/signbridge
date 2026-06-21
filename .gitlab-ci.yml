@@ -5,22 +5,8 @@ stages:
   - build
 
 default:
-  image: node:20-alpine
   before_script:
-    - |
-      export NVM_DIR="$HOME/.nvm"
-      if [ ! -s "$NVM_DIR/nvm.sh" ]; then
-        export NVM_DIR="/home/ksr/.nvm"
-      fi
-      if [ -s "$NVM_DIR/nvm.sh" ]; then
-        echo "Loading NVM from $NVM_DIR..."
-        . "$NVM_DIR/nvm.sh"
-      else
-        echo "NVM not found. Relying on host environment PATH."
-      fi
-    - node -v
-    - npm -v
-    - npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+    - . scripts/load-nvm-ci.sh
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
@@ -57,31 +43,7 @@ gitleaks:
   before_script: []
   allow_failure: true
   script:
-    - |
-      if ! command -v gitleaks &> /dev/null; then
-        echo "gitleaks command not found. Attempting to download portable binary..."
-        ARCH=$(uname -m)
-        if [ "$ARCH" = "x86_64" ]; then
-          URL="https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz"
-        elif [ "$ARCH" = "aarch64" ]; then
-          URL="https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_arm64.tar.gz"
-        fi
-        if [ -n "$URL" ]; then
-          if curl -sS -L "$URL" -o gitleaks.tar.gz; then
-            tar -xzf gitleaks.tar.gz gitleaks
-            chmod +x gitleaks
-            ./gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
-          else
-            echo "Failed to download gitleaks binary."
-            exit 0
-          fi
-        else
-          echo "Unsupported architecture ($ARCH). Skipping scan."
-          exit 0
-        fi
-      else
-        gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
-      fi
+    - bash scripts/run-gitleaks.sh
 
 build:
   stage: build

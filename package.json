@@ -31,6 +31,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@eslint/js": "^10.0.1",
+    "@oxc-resolver/binding-linux-x64-gnu": "^11.21.3",
     "@tailwindcss/postcss": "^4.3.0",
     "@tailwindcss/vite": "^4.3.0",
     "@testing-library/react": "^16.2.0",
