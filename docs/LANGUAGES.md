@@ -1,6 +1,6 @@
 # Supported Languages
 
-SignBridge AI is committed to making communication accessible to everyone in India. We currently support the following languages for both the UI and the translated sign-to-speech output.
+SignBridge AI is committed to making communication accessible to every Indian. We currently support the following languages for both the UI and the translated sign-to-speech output.
 
 ## Language Catalog
 
