@@ -5,6 +5,7 @@ stages:
   - build
 
 default:
+  image: node:20-alpine
   before_script:
     - |
       export NVM_DIR="$HOME/.nvm"
