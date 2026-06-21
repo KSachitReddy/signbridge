@@ -1,6 +1,5 @@
 ---
 title: SignBridge AI
-emoji: 🤟
 colorFrom: blue
 colorTo: indigo
 sdk: streamlit
@@ -9,7 +8,7 @@ app_file: streamlit_app.py
 pinned: false
 ---
 
-# 🤟 SignBridge AI
+#  SignBridge AI
 
 > **Sign. Connect. Belong.**  
 > Bridging communication gaps for deaf and mute individuals through innovative AI technology.
