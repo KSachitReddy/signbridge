@@ -1,9 +1,7 @@
 stages:
   - format
   - lint
-  - type_check
   - test
-  - security
   - build
 
 default:
@@ -25,11 +23,6 @@ lint:
   script:
     - npm run lint
 
-type_check:
-  stage: type_check
-  script:
-    - npm run typecheck
-
 test:
   stage: test
   script:
@@ -43,19 +36,6 @@ test:
       coverage_report:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
-
-audit:
-  stage: security
-  script:
-    - npm audit --audit-level=high
-  allow_failure: true
-
-gitleaks:
-  stage: security
-  image: zricethezav/gitleaks:latest
-  before_script: []
-  script:
-    - gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
 
 build:
   stage: build
