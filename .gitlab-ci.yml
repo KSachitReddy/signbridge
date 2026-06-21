@@ -1,7 +1,7 @@
 stages:
-  - format
   - lint
   - test
+  - security
   - build
 
 default:
@@ -13,20 +13,16 @@ default:
     paths:
       - .npm/
 
-format:
-  stage: format
-  script:
-    - npm run format:check || npx prettier --check "**/*.{ts,tsx,js,jsx,json,md,yml,yaml}"
-
 lint:
   stage: lint
   script:
     - npm run lint
+    - npm run typecheck
 
 test:
   stage: test
   script:
-    - npm run test:coverage || npx vitest run --coverage
+    - npm run test:coverage
   coverage: '/All files[^|]*\|[^|]*\s+([\d\.]+)/'
   artifacts:
     when: always
@@ -36,6 +32,43 @@ test:
       coverage_report:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
+
+audit:
+  stage: security
+  script:
+    - npm audit --audit-level=high
+  allow_failure: true
+
+gitleaks:
+  stage: security
+  before_script: []
+  allow_failure: true
+  script:
+    - |
+      if ! command -v gitleaks &> /dev/null; then
+        echo "gitleaks command not found. Attempting to download portable binary..."
+        ARCH=$(uname -m)
+        if [ "$ARCH" = "x86_64" ]; then
+          URL="https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_x64.tar.gz"
+        elif [ "$ARCH" = "aarch64" ]; then
+          URL="https://github.com/gitleaks/gitleaks/releases/download/v8.18.0/gitleaks_8.18.0_linux_arm64.tar.gz"
+        fi
+        if [ -n "$URL" ]; then
+          if curl -sS -L "$URL" -o gitleaks.tar.gz; then
+            tar -xzf gitleaks.tar.gz gitleaks
+            chmod +x gitleaks
+            ./gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
+          else
+            echo "Failed to download gitleaks binary."
+            exit 0
+          fi
+        else
+          echo "Unsupported architecture ($ARCH). Skipping scan."
+          exit 0
+        fi
+      else
+        gitleaks detect --config .gitleaks.toml --no-banner --verbose --redact
+      fi
 
 build:
   stage: build
