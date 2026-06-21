@@ -1,7 +1,5 @@
 # User Manual — SignBridge AI
 
-> **Sign. Connect. Belong.**
-> Version 1.3.0 | © 2025 SignBridge
 
 ---
 
@@ -331,4 +329,4 @@ For bug reports, please include:
 
 ---
 
-_Made with ❤️ by the SignBridge Team | © 2025 SignBridge. All rights reserved._
+_Made with ❤️ by the SignBridge Team |
