@@ -491,5 +491,3 @@ All contributors are acknowledged in our release notes and CHANGELOG. Significan
 Thank you for helping us build technology that makes the world more inclusive. 🤟
 
 ---
-
-_© 2025 SignBridge. All rights reserved._
