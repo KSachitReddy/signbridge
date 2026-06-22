@@ -3,6 +3,18 @@ import { useTranslation } from 'react-i18next';
 import './App.css';
 import { useVideoStreaming } from './useVideoStreaming';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
+import {
+  PROVIDERS,
+  getProviderConfig,
+  loadAISettings,
+  saveAISettings,
+  isProviderConfigured,
+  testProviderConnection,
+  enhanceTranslation,
+  type AISettings,
+  type ProviderId,
+  type ConnectionTestResult,
+} from './aiProviders';
 
 const HAND_CONNECTIONS = [
   [0, 1],
@@ -36,6 +48,7 @@ interface Log {
   text: string;
   lang: string;
   confidence: number;
+  aiEnhanced?: boolean;
 }
 
 interface FaceProfile {
@@ -130,6 +143,34 @@ function App() {
     hosted_unavailable: { label: '🌐 Ollama Unavailable In Hosted Deployment', className: 'neutral' },
   };
 
+  // BYOK AI provider settings - `aiSettings` is the saved/active config used for live
+  // translation enhancement; `aiDraft` is the editable form state on the Settings page.
+  const [aiSettings, setAiSettings] = useState<AISettings>(() => loadAISettings());
+  const [aiDraft, setAiDraft] = useState<AISettings>(aiSettings);
+  const [aiTesting, setAiTesting] = useState(false);
+  const [aiTestResult, setAiTestResult] = useState<ConnectionTestResult | null>(null);
+  const [aiSaved, setAiSaved] = useState(false);
+
+  const handleAiProviderChange = (id: ProviderId) => {
+    setAiDraft((prev) => ({ ...prev, provider: id, model: getProviderConfig(id).defaultModel }));
+    setAiTestResult(null);
+  };
+
+  const handleAiSave = () => {
+    saveAISettings(aiDraft);
+    setAiSettings(aiDraft);
+    setAiSaved(true);
+    setTimeout(() => setAiSaved(false), 2500);
+  };
+
+  const handleAiTest = async () => {
+    setAiTesting(true);
+    setAiTestResult(null);
+    const result = await testProviderConnection(aiDraft);
+    setAiTestResult(result);
+    setAiTesting(false);
+  };
+
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Emotion charts logs
@@ -206,8 +247,9 @@ function App() {
     if (label && label !== 'None' && label !== lastLoggedSign) {
       const now = Date.now();
       if (now - lastLogTime > 2500) {
+        const logId = 'C_' + Math.random().toString(36).substring(2, 9).toUpperCase();
         const newLog: Log = {
-          id: 'C_' + Math.random().toString(36).substring(2, 9).toUpperCase(),
+          id: logId,
           person: recognitionResult?.face?.results?.[0]?.identity || 'Unknown',
           timestamp: new Date().toLocaleString(),
           sign: label,
@@ -223,9 +265,24 @@ function App() {
         });
         setLastLoggedSign(label);
         setLastLogTime(now);
+
+        // Ask the configured BYOK provider for a richer interpretation of this gesture.
+        // Patches the log in place once it arrives; silently keeps the static text otherwise.
+        if (isProviderConfigured(aiSettings)) {
+          enhanceTranslation(aiSettings, label, i18n.language).then((enhanced) => {
+            if (!enhanced) return;
+            setConversations((prev) => {
+              const next = prev.map((log) =>
+                log.id === logId ? { ...log, text: enhanced, aiEnhanced: true } : log
+              );
+              localStorage.setItem('signbridge_conversations', JSON.stringify(next));
+              return next;
+            });
+          });
+        }
       }
     }
-  }, [recognitionResult, lastLoggedSign, lastLogTime, i18n.language]);
+  }, [recognitionResult, lastLoggedSign, lastLogTime, i18n.language, aiSettings]);
 
   // Tracking emotion changes for the graph logs
   useEffect(() => {
@@ -836,7 +893,14 @@ function App() {
                         <td className="p-3">
                           <span className="badge-sign">{log.sign}</span>
                         </td>
-                        <td className="p-3 text-green-400 font-semibold">{log.text}</td>
+                        <td className="p-3 text-green-400 font-semibold">
+                          {log.text}
+                          {log.aiEnhanced && (
+                            <span className="ai-enhanced-badge" title="Refined by your configured AI provider">
+                              ✨
+                            </span>
+                          )}
+                        </td>
                         <td className="p-3 font-bold text-gray-400">{log.lang}</td>
                         <td className="p-3 text-xs">{(log.confidence * 100).toFixed(0)}%</td>
                       </tr>
@@ -1004,24 +1068,101 @@ function App() {
                 </select>
               </div>
 
-              {/* AI providers selection */}
-              <div className="flex flex-col gap-2 pt-4 border-t border-gray-800">
+              {/* AI providers selection (BYOK) */}
+              <div className="flex flex-col gap-3 pt-4 border-t border-gray-800">
                 <h4 className="text-sm font-bold text-blue-400">✨ AI LLM BYOK Settings</h4>
                 <p className="text-xs text-gray-400">
-                  Configure client-side keys and API providers to refine translated sign language
-                  sentences.
+                  Bring your own API key to enhance live translations with AI-assisted
+                  interpretation. Keys are stored only in this browser's local storage and sent
+                  directly to the provider.
                 </p>
 
-                <select
-                  defaultValue={localStorage.getItem('signbridge_provider') || ''}
-                  onChange={(e) => localStorage.setItem('signbridge_provider', e.target.value)}
-                  className="p-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white w-full text-sm outline-none mt-2"
-                >
-                  <option value="">None (Local translation only)</option>
-                  <option value="ollama">Ollama (Local LLM)</option>
-                  <option value="openai">OpenAI (BYOK)</option>
-                  <option value="gemini">Google Gemini (BYOK)</option>
-                </select>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-gray-300">Provider</label>
+                  <select
+                    value={aiDraft.provider}
+                    onChange={(e) => handleAiProviderChange(e.target.value as ProviderId)}
+                    className="p-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white w-full text-sm outline-none"
+                  >
+                    {PROVIDERS.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {getProviderConfig(aiDraft.provider).requiresApiKey && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-300">API Key</label>
+                    <input
+                      type="password"
+                      value={aiDraft.apiKey}
+                      onChange={(e) => setAiDraft((prev) => ({ ...prev, apiKey: e.target.value }))}
+                      placeholder={getProviderConfig(aiDraft.provider).keyPlaceholder}
+                      autoComplete="off"
+                      className="p-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white w-full text-sm outline-none"
+                    />
+                  </div>
+                )}
+
+                {aiDraft.provider === 'ollama' && (
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-300">Ollama Base URL</label>
+                    <input
+                      type="text"
+                      value={aiDraft.baseUrl}
+                      onChange={(e) => setAiDraft((prev) => ({ ...prev, baseUrl: e.target.value }))}
+                      placeholder="http://localhost:11434"
+                      className="p-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white w-full text-sm outline-none"
+                    />
+                  </div>
+                )}
+
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-gray-300">Model</label>
+                  <input
+                    type="text"
+                    list="ai-model-suggestions"
+                    value={aiDraft.model}
+                    onChange={(e) => setAiDraft((prev) => ({ ...prev, model: e.target.value }))}
+                    placeholder={getProviderConfig(aiDraft.provider).defaultModel}
+                    className="p-2.5 rounded-lg bg-gray-900 border border-gray-700 text-white w-full text-sm outline-none"
+                  />
+                  <datalist id="ai-model-suggestions">
+                    {getProviderConfig(aiDraft.provider).suggestedModels.map((m) => (
+                      <option key={m} value={m} />
+                    ))}
+                  </datalist>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={handleAiSave}
+                    className="action-btn-blue text-sm flex-1 cursor-pointer"
+                  >
+                    {aiSaved ? '✅ Saved' : '💾 Save Settings'}
+                  </button>
+                  <button
+                    onClick={handleAiTest}
+                    disabled={aiTesting}
+                    className="action-btn-purple text-sm flex-1 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {aiTesting ? '⏳ Testing...' : '🔌 Test Connection'}
+                  </button>
+                </div>
+
+                {aiTestResult && (
+                  <div className={`ai-test-result ${aiTestResult.ok ? 'ok' : 'fail'}`}>
+                    {aiTestResult.ok ? '✅' : '❌'} {aiTestResult.message}
+                  </div>
+                )}
+
+                <p className="ai-active-provider">
+                  Active provider: <strong>{getProviderConfig(aiSettings.provider).label}</strong> (
+                  {aiSettings.model})
+                  {!isProviderConfigured(aiSettings) && ' — not configured, using local translation only.'}
+                </p>
               </div>
 
               <div className="pt-4 border-t border-gray-800">

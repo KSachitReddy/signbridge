@@ -1083,6 +1083,43 @@ body {
   box-sizing: border-box;
 }
 
+.ai-test-result {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+}
+
+.ai-test-result.ok {
+  color: var(--emerald);
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.ai-test-result.fail {
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.ai-active-provider {
+  font-size: 0.75rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.ai-active-provider strong {
+  color: var(--text-h);
+}
+
+.ai-enhanced-badge {
+  margin-left: 6px;
+  font-size: 0.75rem;
+  cursor: help;
+}
+
 .border-red-650 {
   border-color: rgba(239, 68, 68, 0.4) !important;
 }
