@@ -192,9 +192,9 @@ body {
   width: 100%;
   padding: 8px 12px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.03);
+  background-color: #18181f;
   border: 1px solid var(--border);
-  color: var(--text-h);
+  color: #fafafa;
   font-size: 0.85rem;
   outline: none;
   cursor: pointer;
@@ -208,6 +208,14 @@ body {
 .high-contrast-dark-theme .lang-select {
   background: #000000;
   border: 2px solid #ffffff;
+}
+
+/* Native <option> popups ignore most parent styling, so style them explicitly
+   to avoid the browser falling back to a low-contrast default palette. */
+.lang-select option,
+.settings-container select option {
+  background-color: #18181f;
+  color: #fafafa;
 }
 
 .app-mode-badge {
@@ -379,6 +387,16 @@ body {
 .status-label.count.purple {
   background: rgba(139, 92, 246, 0.1);
   color: var(--purple);
+}
+
+.status-label.yellow {
+  background: rgba(234, 179, 8, 0.1);
+  color: #eab308;
+}
+
+.status-label.neutral {
+  background: rgba(161, 161, 170, 0.12);
+  color: var(--text);
 }
 
 .high-contrast-dark-theme .status-label {
@@ -617,6 +635,44 @@ body {
 .high-contrast-dark-theme .overlay {
   background: #000000;
   border: 2px solid #ffffff;
+}
+
+.camera-error-banner {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  background: rgba(127, 29, 29, 0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+}
+
+.camera-error-banner p {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #fef2f2;
+}
+
+.camera-error-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.high-contrast-dark-theme .camera-error-banner {
+  background: #000000;
+  border: 2px solid #ffffff;
+}
+
+.high-contrast-dark-theme .camera-error-banner p {
+  color: #ffffff;
 }
 
 .overlay-item {

@@ -85,15 +85,50 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLogs, setSelectedLogs] = useState<Record<string, boolean>>({});
 
-  // Streaming Hook
+  // Streaming Hook - camera only starts while the Live Translation page is mounted
   const {
     videoRef,
     canvasRef,
     recognitionResult,
     isClientMode,
     loadingText,
+    cameraError,
     enrollFace,
-  } = useVideoStreaming(i18n.language);
+  } = useVideoStreaming(i18n.language, activePage === 'Live Translation');
+
+  // Ollama connectivity status (local-only check, never probed from a hosted deployment)
+  type OllamaStatus = 'checking' | 'available' | 'not_running' | 'hosted_unavailable';
+  const [ollamaStatus, setOllamaStatus] = useState<OllamaStatus>('checking');
+
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+
+    if (!isLocalHost) {
+      setOllamaStatus('hosted_unavailable');
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+    fetch('http://localhost:11434/api/tags', { signal: controller.signal })
+      .then((res) => setOllamaStatus(res.ok ? 'available' : 'not_running'))
+      .catch(() => setOllamaStatus('not_running'))
+      .finally(() => clearTimeout(timeoutId));
+
+    return () => {
+      clearTimeout(timeoutId);
+      controller.abort();
+    };
+  }, []);
+
+  const OLLAMA_STATUS_DISPLAY: Record<OllamaStatus, { label: string; className: string }> = {
+    checking: { label: '⏳ Checking...', className: 'yellow' },
+    available: { label: '✅ Local Ollama Available', className: 'green' },
+    not_running: { label: '❌ Local Ollama Not Running', className: 'red' },
+    hosted_unavailable: { label: '🌐 Ollama Unavailable In Hosted Deployment', className: 'neutral' },
+  };
 
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -479,7 +514,9 @@ function App() {
               <div className="glass-card status-card">
                 <span className="card-icon">🧠</span>
                 <h5>Ollama LLM</h5>
-                <span className="status-label red">❌ Offline</span>
+                <span className={`status-label ${OLLAMA_STATUS_DISPLAY[ollamaStatus].className}`}>
+                  {OLLAMA_STATUS_DISPLAY[ollamaStatus].label}
+                </span>
               </div>
               <div className="glass-card status-card">
                 <span className="card-icon">💬</span>
@@ -590,6 +627,13 @@ function App() {
                   width="640"
                   height="480"
                 />
+
+                {cameraError && (
+                  <div className="camera-error-banner">
+                    <span className="camera-error-icon">⚠️</span>
+                    <p>{cameraError}</p>
+                  </div>
+                )}
 
                 {recognitionResult && (
                   <div className="overlay">

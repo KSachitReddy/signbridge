@@ -156,7 +156,31 @@ const saveFaceDB = (db: FaceProfile[]) => {
   localStorage.setItem('signbridge_faces', JSON.stringify(db));
 };
 
-export const useVideoStreaming = (lang: string = 'en') => {
+// Maps getUserMedia failures to actionable, user-facing diagnostics
+const getCameraErrorMessage = (err: unknown): string => {
+  const name = (err as DOMException)?.name;
+  switch (name) {
+    case 'NotAllowedError':
+    case 'PermissionDeniedError':
+      return 'Camera permission was denied. Allow camera access for this site in your browser settings, then reload the page.';
+    case 'NotFoundError':
+    case 'DevicesNotFoundError':
+      return 'No camera device was found. Connect a webcam and reload the page.';
+    case 'NotReadableError':
+    case 'TrackStartError':
+      return 'The camera could not be started. It may already be in use by another application.';
+    case 'OverconstrainedError':
+      return 'No camera on this device matches the required settings.';
+    case 'SecurityError':
+      return 'Camera access is blocked in this browser context (camera requires HTTPS or localhost).';
+    case 'NotSupportedError':
+      return 'Camera access is not supported in this browser.';
+    default:
+      return 'Unable to access the camera. Check your browser permissions and try again.';
+  }
+};
+
+export const useVideoStreaming = (lang: string = 'en', isActive: boolean = true) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -165,6 +189,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
   const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
   const [loadingText, setLoadingText] = useState<string>('Connecting to backend...');
   const [activeFaceLandmarks, setActiveFaceLandmarks] = useState<any>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   const langRef = useRef(lang);
   const socketRef = useRef<any>(null);
@@ -216,7 +241,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
 
   // Client-Side MediaPipe Engine
   useEffect(() => {
-    if (!isClientMode) return;
+    if (!isClientMode || !isActive) return;
 
     let faceLandmarker: FaceLandmarker | null = null;
     let handLandmarker: HandLandmarker | null = null;
@@ -444,9 +469,25 @@ export const useVideoStreaming = (lang: string = 'en') => {
 
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: 640, height: 480, facingMode: 'user' },
-        });
+        setCameraError(null);
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new DOMException('Camera API is not available in this browser.', 'NotSupportedError');
+        }
+
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480, facingMode: 'user' },
+          });
+        } catch (constraintErr) {
+          // Retry with default constraints if the preferred device/resolution is unavailable
+          if ((constraintErr as DOMException)?.name === 'OverconstrainedError') {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          } else {
+            throw constraintErr;
+          }
+        }
+
         activeStream = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -456,6 +497,8 @@ export const useVideoStreaming = (lang: string = 'en') => {
         animationFrameId = requestAnimationFrame(processFrame);
       } catch (err) {
         console.error('Camera access failed in client mode:', err);
+        setCameraError(getCameraErrorMessage(err));
+        setLoadingText('');
       }
     };
 
@@ -467,17 +510,22 @@ export const useVideoStreaming = (lang: string = 'en') => {
         activeStream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [isClientMode]);
+  }, [isClientMode, isActive]);
 
   // Non-Client Mode (Socket Server Loop)
   useEffect(() => {
-    if (isClientMode) return;
+    if (isClientMode || !isActive) return;
 
     let intervalId: any = null;
     let activeStream: MediaStream | null = null;
 
     const startStream = async () => {
       try {
+        setCameraError(null);
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new DOMException('Camera API is not available in this browser.', 'NotSupportedError');
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         activeStream = stream;
         if (videoRef.current) {
@@ -500,6 +548,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
         }, 100);
       } catch (error) {
         console.error('Camera stream fail in socket mode:', error);
+        setCameraError(getCameraErrorMessage(error));
       }
     };
 
@@ -511,7 +560,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
         activeStream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [isClientMode]);
+  }, [isClientMode, isActive]);
 
   // Enroll Face Functionality
   const enrollFace = (name: string): boolean => {
@@ -569,6 +618,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
     isClientMode,
     modelsLoaded,
     loadingText,
+    cameraError,
     enrollFace,
   };
 };
