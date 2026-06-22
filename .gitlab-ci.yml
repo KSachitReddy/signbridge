@@ -1,11 +1,7 @@
 stages:
-  - format
   - lint
-  - typecheck
-  - deadcode
   - test
   - security
-  - audit
   - build
 
 default:
@@ -16,24 +12,12 @@ default:
     paths:
       - .npm/
 
-format:
-  stage: format
-  script:
-    - npm run format:check
-
 lint:
   stage: lint
   script:
+    - npm run format:check
     - npm run lint
-
-typecheck:
-  stage: typecheck
-  script:
     - npm run typecheck
-
-deadcode:
-  stage: deadcode
-  script:
     - npm run knip
 
 test:
@@ -50,7 +34,7 @@ test:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
 
-security:
+gitleaks:
   stage: security
   before_script: []
   allow_failure: true
@@ -58,10 +42,10 @@ security:
     - bash scripts/run-gitleaks.sh
 
 audit:
-  stage: audit
+  stage: security
+  allow_failure: true
   script:
     - npm run audit || true
-  allow_failure: true
 
 build:
   stage: build
