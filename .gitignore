@@ -57,3 +57,7 @@ gitleaks
 gitleaks.exe
 gitleaks.zip
 gitleaks.tar.gz
+
+# Local copy of the audit job's CI artifact (audit-report/audit.txt is
+# already covered by *.txt above, but audit.json is not)
+audit-report/
