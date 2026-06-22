@@ -7,27 +7,27 @@ const BACKEND_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 // Translation map for client-side mode
 const TRANSLATION_MAP: Record<string, Record<string, string>> = {
   hi: {
-    "none": "कोई नहीं",
-    "hello": "नमस्ते",
-    "thank you": "धन्यवाद",
-    "thumbs up": "अंगूठा ऊपर (बहुत बढ़िया)",
-    "thumbs down": "अंगूठा नीचे (असहमत)",
-    "open palm": "खुली हथेली",
-    "point left": "बाईं ओर इशारा",
-    "point right": "दाईं ओर इशारा",
-    "unknown": "अज्ञात"
+    none: 'कोई नहीं',
+    hello: 'नमस्ते',
+    'thank you': 'धन्यवाद',
+    'thumbs up': 'अंगूठा ऊपर (बहुत बढ़िया)',
+    'thumbs down': 'अंगूठा नीचे (असहमत)',
+    'open palm': 'खुली हथेली',
+    'point left': 'बाईं ओर इशारा',
+    'point right': 'दाईं ओर इशारा',
+    unknown: 'अज्ञात',
   },
   te: {
-    "none": "ఏమీ లేదు",
-    "hello": "నమస్కారం",
-    "thank you": "ధన్యవాదాలు",
-    "thumbs up": "అభినందనలు (థంబ్స్ అప్)",
-    "thumbs down": "అసమ్మతి (థంబ్స్ డౌన్)",
-    "open palm": "తెరచిన చేయి",
-    "point left": "ఎడమ వైపు చూపించు",
-    "point right": "కుడి వైపు చూపించు",
-    "unknown": "తెలియదు"
-  }
+    none: 'ఏమీ లేదు',
+    hello: 'నమస్కారం',
+    'thank you': 'ధన్యవాదాలు',
+    'thumbs up': 'అభినందనలు (థంబ్స్ అప్)',
+    'thumbs down': 'అసమ్మతి (థంబ్స్ డౌన్)',
+    'open palm': 'తెరచిన చేయి',
+    'point left': 'ఎడమ వైపు చూపించు',
+    'point right': 'కుడి వైపు చూపించు',
+    unknown: 'తెలియదు',
+  },
 };
 
 const getTranslatedText = (label: string, lang: string) => {
@@ -71,45 +71,56 @@ const classifyGestureClient = (landmarks: any[]): string => {
   const isPinkyExtended = pinkyTip.y < pinkyPIP.y && pinkyPIP.y < pinkyKnuckle.y;
 
   // Thumb extended detection (horizontally or vertically away from MCP)
-  const isThumbExtended = Math.abs(thumbTip.x - indexKnuckle.x) > 0.08 || Math.abs(thumbTip.y - indexKnuckle.y) > 0.08;
+  const isThumbExtended =
+    Math.abs(thumbTip.x - indexKnuckle.x) > 0.08 || Math.abs(thumbTip.y - indexKnuckle.y) > 0.08;
 
   // 1. Thumbs Up
   // Thumb is up, all other fingers are folded (y of tips is lower than knuckles in screen space/greater value)
-  if (thumbTip.y < thumbIP.y && thumbIP.y < thumbMCP.y &&
-      indexTip.y > indexKnuckle.y &&
-      middleTip.y > middleKnuckle.y &&
-      ringTip.y > ringKnuckle.y &&
-      pinkyTip.y > pinkyKnuckle.y) {
+  if (
+    thumbTip.y < thumbIP.y &&
+    thumbIP.y < thumbMCP.y &&
+    indexTip.y > indexKnuckle.y &&
+    middleTip.y > middleKnuckle.y &&
+    ringTip.y > ringKnuckle.y &&
+    pinkyTip.y > pinkyKnuckle.y
+  ) {
     return 'Thumbs Up';
   }
 
   // 2. Thumbs Down
   // Thumb is down, other fingers are folded
-  if (thumbTip.y > thumbIP.y && thumbIP.y > thumbMCP.y &&
-      indexTip.y > indexKnuckle.y &&
-      middleTip.y > middleKnuckle.y &&
-      ringTip.y > ringKnuckle.y &&
-      pinkyTip.y > pinkyKnuckle.y) {
+  if (
+    thumbTip.y > thumbIP.y &&
+    thumbIP.y > thumbMCP.y &&
+    indexTip.y > indexKnuckle.y &&
+    middleTip.y > middleKnuckle.y &&
+    ringTip.y > ringKnuckle.y &&
+    pinkyTip.y > pinkyKnuckle.y
+  ) {
     return 'Thumbs Down';
   }
 
   // 3. Point Left
   // Index finger extended horizontally left, all other fingers closed
-  if (indexTip.x < indexKnuckle.x && 
-      Math.abs(indexTip.y - indexKnuckle.y) < Math.abs(indexTip.x - indexKnuckle.x) &&
-      middleTip.x > indexKnuckle.x &&
-      ringTip.x > indexKnuckle.x &&
-      pinkyTip.x > indexKnuckle.x) {
+  if (
+    indexTip.x < indexKnuckle.x &&
+    Math.abs(indexTip.y - indexKnuckle.y) < Math.abs(indexTip.x - indexKnuckle.x) &&
+    middleTip.x > indexKnuckle.x &&
+    ringTip.x > indexKnuckle.x &&
+    pinkyTip.x > indexKnuckle.x
+  ) {
     return 'Point Left';
   }
 
   // 4. Point Right
   // Index finger extended horizontally right, all other fingers closed
-  if (indexTip.x > indexKnuckle.x && 
-      Math.abs(indexTip.y - indexKnuckle.y) < Math.abs(indexTip.x - indexKnuckle.x) &&
-      middleTip.x < indexKnuckle.x &&
-      ringTip.x < indexKnuckle.x &&
-      pinkyTip.x < indexKnuckle.x) {
+  if (
+    indexTip.x > indexKnuckle.x &&
+    Math.abs(indexTip.y - indexKnuckle.y) < Math.abs(indexTip.x - indexKnuckle.x) &&
+    middleTip.x < indexKnuckle.x &&
+    ringTip.x < indexKnuckle.x &&
+    pinkyTip.x < indexKnuckle.x
+  ) {
     return 'Point Right';
   }
 
@@ -148,7 +159,7 @@ const saveFaceDB = (db: FaceProfile[]) => {
 export const useVideoStreaming = (lang: string = 'en') => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const [recognitionResult, setRecognitionResult] = useState<any>(null);
   const [isClientMode, setIsClientMode] = useState<boolean>(false);
   const [modelsLoaded, setModelsLoaded] = useState<boolean>(false);
@@ -168,7 +179,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
     console.log('Attempting connection to backend at:', BACKEND_URL);
     const socket = io(BACKEND_URL, {
       timeout: 1500,
-      reconnectionAttempts: 1
+      reconnectionAttempts: 1,
     });
     socketRef.current = socket;
 
@@ -223,20 +234,20 @@ export const useVideoStreaming = (lang: string = 'en') => {
         faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath: '/face_landmarker.task',
-            delegate: 'GPU'
+            delegate: 'GPU',
           },
           runningMode: 'VIDEO',
-          outputFaceBlendshapes: true
+          outputFaceBlendshapes: true,
         });
 
         setLoadingText('Loading Hand Detector task...');
         handLandmarker = await HandLandmarker.createFromOptions(vision, {
           baseOptions: {
             modelAssetPath: '/hand_landmarker.task',
-            delegate: 'GPU'
+            delegate: 'GPU',
           },
           runningMode: 'VIDEO',
-          numHands: 2
+          numHands: 2,
         });
 
         console.log('Client-side MediaPipe processors loaded successfully.');
@@ -250,20 +261,22 @@ export const useVideoStreaming = (lang: string = 'en') => {
           );
           faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
             baseOptions: {
-              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
-              delegate: 'GPU'
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+              delegate: 'GPU',
             },
             runningMode: 'VIDEO',
-            outputFaceBlendshapes: true
+            outputFaceBlendshapes: true,
           });
 
           handLandmarker = await HandLandmarker.createFromOptions(vision, {
             baseOptions: {
-              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-              delegate: 'GPU'
+              modelAssetPath:
+                'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
+              delegate: 'GPU',
             },
             runningMode: 'VIDEO',
-            numHands: 2
+            numHands: 2,
           });
           setModelsLoaded(true);
           setLoadingText('');
@@ -307,17 +320,15 @@ export const useVideoStreaming = (lang: string = 'en') => {
             const p263 = landmarks[263];
             const eyeDist = Math.sqrt(
               Math.pow(p33.x - p263.x, 2) +
-              Math.pow(p33.y - p263.y, 2) +
-              Math.pow(p33.z - p263.z, 2)
+                Math.pow(p33.y - p263.y, 2) +
+                Math.pow(p33.z - p263.z, 2)
             );
 
             // Nose tip: 4, Chin: 152
             const p4 = landmarks[4];
             const p152 = landmarks[152];
             const noseToChin = Math.sqrt(
-              Math.pow(p4.x - p152.x, 2) +
-              Math.pow(p4.y - p152.y, 2) +
-              Math.pow(p4.z - p152.z, 2)
+              Math.pow(p4.x - p152.x, 2) + Math.pow(p4.y - p152.y, 2) + Math.pow(p4.z - p152.z, 2)
             );
 
             // Mouth corners: 61 and 291
@@ -325,8 +336,8 @@ export const useVideoStreaming = (lang: string = 'en') => {
             const p291 = landmarks[291];
             const mouthWidth = Math.sqrt(
               Math.pow(p61.x - p291.x, 2) +
-              Math.pow(p61.y - p291.y, 2) +
-              Math.pow(p61.z - p291.z, 2)
+                Math.pow(p61.y - p291.y, 2) +
+                Math.pow(p61.z - p291.z, 2)
             );
 
             const r1 = eyeDist / (noseToChin || 1);
@@ -342,9 +353,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
             db.forEach((profile) => {
               const [f1, f2, f3] = profile.fingerprint;
               const dist = Math.sqrt(
-                Math.pow(r1 - f1, 2) +
-                Math.pow(r2 - f2, 2) +
-                Math.pow(r3 - f3, 2)
+                Math.pow(r1 - f1, 2) + Math.pow(r2 - f2, 2) + Math.pow(r3 - f3, 2)
               );
 
               if (dist < minDistance) {
@@ -357,7 +366,10 @@ export const useVideoStreaming = (lang: string = 'en') => {
             });
 
             // Calculate bounding box bounds from landmarks
-            let minX = 1.0, maxX = 0.0, minY = 1.0, maxY = 0.0;
+            let minX = 1.0,
+              maxX = 0.0,
+              minY = 1.0,
+              maxY = 0.0;
             landmarks.forEach((lm) => {
               if (lm.x < minX) minX = lm.x;
               if (lm.x > maxX) maxX = lm.x;
@@ -373,11 +385,11 @@ export const useVideoStreaming = (lang: string = 'en') => {
             faceResult.results.push({
               identity,
               confidence: identity === 'Unknown' ? 0.0 : bestConfidence,
-              box: [startX, startY, boxW, boxH]
+              box: [startX, startY, boxW, boxH],
             });
           }
         }
-        
+
         setActiveFaceLandmarks(faceLandmarksData);
 
         // 2. Process Hand Gesture Recognition
@@ -397,30 +409,33 @@ export const useVideoStreaming = (lang: string = 'en') => {
         if (!faceLandmarker && !handLandmarker) {
           faceResult = {
             status: 'success',
-            results: [{ identity: 'Demo Mode (Guest)', confidence: 0.95, box: [180, 100, 280, 280] }]
+            results: [
+              { identity: 'Demo Mode (Guest)', confidence: 0.95, box: [180, 100, 280, 280] },
+            ],
           };
-          
+
           // Generate mock hand landmarks in client-side demo mode
           const mockLandmarks = [];
-          const base_x = 0.5, base_y = 0.6;
+          const base_x = 0.5,
+            base_y = 0.6;
           for (let i = 0; i < 21; i++) {
             mockLandmarks.push({
               x: base_x + 0.08 * Math.sin(i * 0.5),
               y: base_y - 0.01 * i + 0.03 * Math.cos(i * 0.5),
-              z: -0.01 * i
+              z: -0.01 * i,
             });
           }
           gestureResult = {
             landmarks: [mockLandmarks],
             label: 'Hello',
-            translated_text: getTranslatedText('Hello', langRef.current)
+            translated_text: getTranslatedText('Hello', langRef.current),
           };
         }
 
         setRecognitionResult({
           face: faceResult,
           gesture: gestureResult,
-          emotion: { status: 'success', emotion: 'Happy' }
+          emotion: { status: 'success', emotion: 'Happy' },
         });
       }
 
@@ -429,8 +444,8 @@ export const useVideoStreaming = (lang: string = 'en') => {
 
     const startCamera = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { width: 640, height: 480, facingMode: 'user' } 
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480, facingMode: 'user' },
         });
         activeStream = stream;
         if (videoRef.current) {
@@ -511,25 +526,19 @@ export const useVideoStreaming = (lang: string = 'en') => {
       const p33 = landmarks[33];
       const p263 = landmarks[263];
       const eyeDist = Math.sqrt(
-        Math.pow(p33.x - p263.x, 2) +
-        Math.pow(p33.y - p263.y, 2) +
-        Math.pow(p33.z - p263.z, 2)
+        Math.pow(p33.x - p263.x, 2) + Math.pow(p33.y - p263.y, 2) + Math.pow(p33.z - p263.z, 2)
       );
 
       const p4 = landmarks[4];
       const p152 = landmarks[152];
       const noseToChin = Math.sqrt(
-        Math.pow(p4.x - p152.x, 2) +
-        Math.pow(p4.y - p152.y, 2) +
-        Math.pow(p4.z - p152.z, 2)
+        Math.pow(p4.x - p152.x, 2) + Math.pow(p4.y - p152.y, 2) + Math.pow(p4.z - p152.z, 2)
       );
 
       const p61 = landmarks[61];
       const p291 = landmarks[291];
       const mouthWidth = Math.sqrt(
-        Math.pow(p61.x - p291.x, 2) +
-        Math.pow(p61.y - p291.y, 2) +
-        Math.pow(p61.z - p291.z, 2)
+        Math.pow(p61.x - p291.x, 2) + Math.pow(p61.y - p291.y, 2) + Math.pow(p61.z - p291.z, 2)
       );
 
       const r1 = eyeDist / (noseToChin || 1);
@@ -541,7 +550,7 @@ export const useVideoStreaming = (lang: string = 'en') => {
       const cleanDb = db.filter((p) => p.name.toLowerCase() !== name.toLowerCase());
       cleanDb.push({
         name,
-        fingerprint: [r1, r2, r3]
+        fingerprint: [r1, r2, r3],
       });
 
       saveFaceDB(cleanDb);
@@ -553,13 +562,13 @@ export const useVideoStreaming = (lang: string = 'en') => {
     }
   };
 
-  return { 
-    videoRef, 
-    canvasRef, 
-    recognitionResult, 
-    isClientMode, 
-    modelsLoaded, 
+  return {
+    videoRef,
+    canvasRef,
+    recognitionResult,
+    isClientMode,
+    modelsLoaded,
     loadingText,
-    enrollFace 
+    enrollFace,
   };
 };

@@ -1,6 +1,7 @@
 # Project Roadmap
 
 This document outlines the planned features and improvements for SignBridge AI.
+
 ## Q1 2027: Community & Ecosystem
 
 - [ ] Community portal for sign language learners.
@@ -18,7 +19,6 @@ This document outlines the planned features and improvements for SignBridge AI.
 - [ ] Launch Android application (Flutter).
 - [ ] Offline model optimization for mobile devices.
 - [ ] Push notifications for emergency alerts.
-
 
 ## Long Term
 

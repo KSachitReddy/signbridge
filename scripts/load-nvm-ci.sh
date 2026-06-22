@@ -17,5 +17,7 @@ fi
 node -v || echo "node command not found"
 npm -v || echo "npm command not found"
 
-# Run dependency installation
-npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+# Run dependency installation only if node_modules is missing
+if [ ! -d "node_modules" ]; then
+  npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+fi

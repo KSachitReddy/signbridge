@@ -1,6 +1,5 @@
 # User Manual — SignBridge AI
 
-
 ---
 
 ## Table of Contents
@@ -329,4 +328,4 @@ For bug reports, please include:
 
 ---
 
-_Made with ❤️ by the SignBridge Team |
+\_Made with ❤️ by the SignBridge Team |
