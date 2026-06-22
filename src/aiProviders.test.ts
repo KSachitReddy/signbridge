@@ -21,7 +21,12 @@ describe('aiProviders settings storage', () => {
   });
 
   it('round-trips saved settings through localStorage', () => {
-    const saved: AISettings = { provider: 'openai', apiKey: 'sk-test', model: 'gpt-4o-mini', baseUrl: '' };
+    const saved: AISettings = {
+      provider: 'openai',
+      apiKey: 'sk-test',
+      model: 'gpt-4o-mini',
+      baseUrl: 'http://localhost:11434',
+    };
     saveAISettings(saved);
     expect(loadAISettings()).toEqual(saved);
   });
@@ -34,18 +39,29 @@ describe('aiProviders settings storage', () => {
 
 describe('isProviderConfigured', () => {
   it('Ollama is considered configured without an API key', () => {
-    expect(isProviderConfigured({ provider: 'ollama', apiKey: '', model: 'llama3.2', baseUrl: '' })).toBe(true);
+    expect(
+      isProviderConfigured({ provider: 'ollama', apiKey: '', model: 'llama3.2', baseUrl: '' })
+    ).toBe(true);
   });
 
   it('cloud providers require a non-empty API key', () => {
-    expect(isProviderConfigured({ provider: 'openai', apiKey: '', model: 'gpt-4o-mini', baseUrl: '' })).toBe(false);
-    expect(isProviderConfigured({ provider: 'openai', apiKey: 'sk-x', model: 'gpt-4o-mini', baseUrl: '' })).toBe(
-      true
-    );
+    expect(
+      isProviderConfigured({ provider: 'openai', apiKey: '', model: 'gpt-4o-mini', baseUrl: '' })
+    ).toBe(false);
+    expect(
+      isProviderConfigured({
+        provider: 'openai',
+        apiKey: 'sk-x',
+        model: 'gpt-4o-mini',
+        baseUrl: '',
+      })
+    ).toBe(true);
   });
 
   it('requires a non-empty model regardless of provider', () => {
-    expect(isProviderConfigured({ provider: 'ollama', apiKey: '', model: '', baseUrl: '' })).toBe(false);
+    expect(isProviderConfigured({ provider: 'ollama', apiKey: '', model: '', baseUrl: '' })).toBe(
+      false
+    );
   });
 });
 
@@ -75,7 +91,9 @@ describe('testProviderConnection', () => {
   });
 
   it('reports a network/CORS failure gracefully when Ollama is unreachable', async () => {
-    global.fetch = vi.fn().mockRejectedValue(new TypeError('Failed to fetch')) as unknown as typeof fetch;
+    global.fetch = vi
+      .fn()
+      .mockRejectedValue(new TypeError('Failed to fetch')) as unknown as typeof fetch;
 
     const result = await testProviderConnection({
       provider: 'ollama',
@@ -89,7 +107,11 @@ describe('testProviderConnection', () => {
   });
 
   it('flags an invalid OpenAI API key from a 401 response', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 401, json: async () => ({}) }) as unknown as typeof fetch;
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      json: async () => ({}),
+    }) as unknown as typeof fetch;
 
     const result = await testProviderConnection({
       provider: 'openai',
@@ -103,7 +125,12 @@ describe('testProviderConnection', () => {
   });
 
   it('requires an API key before attempting to test a cloud provider', async () => {
-    const result = await testProviderConnection({ provider: 'groq', apiKey: '', model: 'llama-3.3-70b-versatile', baseUrl: '' });
+    const result = await testProviderConnection({
+      provider: 'groq',
+      apiKey: '',
+      model: 'llama-3.3-70b-versatile',
+      baseUrl: '',
+    });
     expect(result.ok).toBe(false);
     expect(result.message).toMatch(/API key/);
   });

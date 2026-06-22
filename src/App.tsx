@@ -111,16 +111,17 @@ function App() {
 
   // Ollama connectivity status (local-only check, never probed from a hosted deployment)
   type OllamaStatus = 'checking' | 'available' | 'not_running' | 'hosted_unavailable';
-  const [ollamaStatus, setOllamaStatus] = useState<OllamaStatus>('checking');
+  const [ollamaStatus, setOllamaStatus] = useState<OllamaStatus>(() => {
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
+    const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
+    return isLocalHost ? 'checking' : 'hosted_unavailable';
+  });
 
   useEffect(() => {
     const hostname = window.location.hostname;
     const isLocalHost = hostname === 'localhost' || hostname === '127.0.0.1';
 
-    if (!isLocalHost) {
-      setOllamaStatus('hosted_unavailable');
-      return;
-    }
+    if (!isLocalHost) return;
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 1500);
@@ -140,7 +141,10 @@ function App() {
     checking: { label: '⏳ Checking...', className: 'yellow' },
     available: { label: '✅ Local Ollama Available', className: 'green' },
     not_running: { label: '❌ Local Ollama Not Running', className: 'red' },
-    hosted_unavailable: { label: '🌐 Ollama Unavailable In Hosted Deployment', className: 'neutral' },
+    hosted_unavailable: {
+      label: '🌐 Ollama Unavailable In Hosted Deployment',
+      className: 'neutral',
+    },
   };
 
   // BYOK AI provider settings - `aiSettings` is the saved/active config used for live
@@ -896,7 +900,10 @@ function App() {
                         <td className="p-3 text-green-400 font-semibold">
                           {log.text}
                           {log.aiEnhanced && (
-                            <span className="ai-enhanced-badge" title="Refined by your configured AI provider">
+                            <span
+                              className="ai-enhanced-badge"
+                              title="Refined by your configured AI provider"
+                            >
                               ✨
                             </span>
                           )}
@@ -1161,7 +1168,8 @@ function App() {
                 <p className="ai-active-provider">
                   Active provider: <strong>{getProviderConfig(aiSettings.provider).label}</strong> (
                   {aiSettings.model})
-                  {!isProviderConfigured(aiSettings) && ' — not configured, using local translation only.'}
+                  {!isProviderConfigured(aiSettings) &&
+                    ' — not configured, using local translation only.'}
                 </p>
               </div>
 

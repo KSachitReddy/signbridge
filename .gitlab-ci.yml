@@ -4,8 +4,8 @@ stages:
   - typecheck
   - deadcode
   - test
+  - security
   - audit
-  - gitleaks
   - build
 
 default:
@@ -34,7 +34,7 @@ typecheck:
 deadcode:
   stage: deadcode
   script:
-    - npx knip
+    - npm run knip
 
 test:
   stage: test
@@ -50,18 +50,18 @@ test:
         coverage_format: cobertura
         path: coverage/cobertura-coverage.xml
 
-audit:
-  stage: audit
-  script:
-    - npm audit --audit-level=high || true
-  allow_failure: true
-
-gitleaks:
-  stage: gitleaks
+security:
+  stage: security
   before_script: []
   allow_failure: true
   script:
     - bash scripts/run-gitleaks.sh
+
+audit:
+  stage: audit
+  script:
+    - npm run audit || true
+  allow_failure: true
 
 build:
   stage: build

@@ -6,7 +6,7 @@
 
 export type ProviderId = 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'groq';
 
-export interface ProviderConfig {
+interface ProviderConfig {
   id: ProviderId;
   label: string;
   defaultModel: string;
@@ -44,7 +44,11 @@ export const PROVIDERS: ProviderConfig[] = [
     id: 'anthropic',
     label: 'Anthropic Claude',
     defaultModel: 'claude-3-5-haiku-latest',
-    suggestedModels: ['claude-3-5-haiku-latest', 'claude-3-5-sonnet-latest', 'claude-3-7-sonnet-latest'],
+    suggestedModels: [
+      'claude-3-5-haiku-latest',
+      'claude-3-5-sonnet-latest',
+      'claude-3-7-sonnet-latest',
+    ],
     requiresApiKey: true,
     keyPlaceholder: 'sk-ant-...',
   },
@@ -87,8 +91,14 @@ export const loadAISettings = (): AISettings => {
     return {
       provider,
       apiKey: typeof parsed.apiKey === 'string' ? parsed.apiKey : '',
-      model: typeof parsed.model === 'string' && parsed.model ? parsed.model : getProviderConfig(provider).defaultModel,
-      baseUrl: typeof parsed.baseUrl === 'string' && parsed.baseUrl ? parsed.baseUrl : DEFAULT_OLLAMA_BASE_URL,
+      model:
+        typeof parsed.model === 'string' && parsed.model
+          ? parsed.model
+          : getProviderConfig(provider).defaultModel,
+      baseUrl:
+        typeof parsed.baseUrl === 'string' && parsed.baseUrl
+          ? parsed.baseUrl
+          : DEFAULT_OLLAMA_BASE_URL,
     };
   } catch {
     return { ...DEFAULT_AI_SETTINGS };
@@ -174,7 +184,8 @@ export async function testProviderConnection(settings: AISettings): Promise<Conn
           `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(settings.apiKey.trim())}`,
           { signal }
         );
-        if (res.status === 400 || res.status === 403) return { ok: false, message: 'Invalid Gemini API key.' };
+        if (res.status === 400 || res.status === 403)
+          return { ok: false, message: 'Invalid Gemini API key.' };
         if (!res.ok) return { ok: false, message: `Gemini responded with status ${res.status}.` };
         return { ok: true, message: 'Connected to Google Gemini.' };
       }
@@ -188,7 +199,8 @@ export async function testProviderConnection(settings: AISettings): Promise<Conn
           signal,
         });
         if (res.status === 401) return { ok: false, message: 'Invalid Anthropic API key.' };
-        if (!res.ok) return { ok: false, message: `Anthropic responded with status ${res.status}.` };
+        if (!res.ok)
+          return { ok: false, message: `Anthropic responded with status ${res.status}.` };
         return { ok: true, message: 'Connected to Anthropic.' };
       }
       case 'groq': {
@@ -238,7 +250,11 @@ const buildPrompt = (gestureLabel: string, languageCode: string): string => {
   );
 };
 
-async function chatComplete(settings: AISettings, prompt: string, signal: AbortSignal): Promise<string | null> {
+async function chatComplete(
+  settings: AISettings,
+  prompt: string,
+  signal: AbortSignal
+): Promise<string | null> {
   switch (settings.provider) {
     case 'ollama': {
       const base = settings.baseUrl.trim().replace(/\/$/, '') || DEFAULT_OLLAMA_BASE_URL;

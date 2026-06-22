@@ -471,7 +471,10 @@ export const useVideoStreaming = (lang: string = 'en', isActive: boolean = true)
       try {
         setCameraError(null);
         if (!navigator.mediaDevices?.getUserMedia) {
-          throw new DOMException('Camera API is not available in this browser.', 'NotSupportedError');
+          throw new DOMException(
+            'Camera API is not available in this browser.',
+            'NotSupportedError'
+          );
         }
 
         let stream: MediaStream;
@@ -523,7 +526,10 @@ export const useVideoStreaming = (lang: string = 'en', isActive: boolean = true)
       try {
         setCameraError(null);
         if (!navigator.mediaDevices?.getUserMedia) {
-          throw new DOMException('Camera API is not available in this browser.', 'NotSupportedError');
+          throw new DOMException(
+            'Camera API is not available in this browser.',
+            'NotSupportedError'
+          );
         }
 
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });

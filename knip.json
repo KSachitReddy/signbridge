@@ -1,11 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "project": ["src/**/*.{ts,tsx}"],
-  "ignoreDependencies": [
-    "react-router-dom",
-    "@biomejs/biome",
-    "autoprefixer",
-    "husky",
-    "vercel"
-  ]
+  "ignoreDependencies": ["react-router-dom", "@biomejs/biome", "autoprefixer", "husky", "vercel"]
 }
