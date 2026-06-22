@@ -1,22 +1,18 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
   ],
-  "experimentalServices": {
-    "signbridge-backend": {
-      "type": "web",
-      "routePrefix": "/api",
-      "framework": "vite",
-      "buildCommand": "mkdir -p dist && echo noop > dist/index.html"
-    },
-    "signbridge-frontend": {
-      "type": "web",
-      "routePrefix": "/",
-      "framework": "vite",
-      "buildCommand": "npm run build"
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
-  }
+  ]
 }
