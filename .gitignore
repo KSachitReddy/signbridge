@@ -51,3 +51,9 @@ models/deploy.prototxt
 
 # GitLab runner builds directory
 builds/
+
+# Portable CI tool binaries downloaded by .gitlab-ci.yml scripts
+gitleaks
+gitleaks.exe
+gitleaks.zip
+gitleaks.tar.gz
